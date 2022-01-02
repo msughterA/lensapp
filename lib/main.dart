@@ -7,6 +7,7 @@ import '/views/screens/login_screen.dart';
 import '/bloc/main_bloc.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 

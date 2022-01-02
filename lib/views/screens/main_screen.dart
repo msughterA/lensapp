@@ -14,6 +14,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:lensapp/models/subject_models.dart';
+import 'edit_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -123,7 +124,7 @@ class _MainScreenState extends State<MainScreen> {
                         },
                         child: CategoryTile(
                           icon: Icon(
-                            Icons.menu_book_outlined,
+                            Icons.book_outlined,
                             color: currentPageValue == 0
                                 ? Pallete.primaryVariant
                                 : Pallete.secondary,
@@ -185,7 +186,7 @@ class _MainScreenState extends State<MainScreen> {
                         },
                         child: CategoryTile(
                           icon: Icon(
-                            Icons.edit_outlined,
+                            Icons.person_outlined,
                             color: currentPageValue == 2
                                 ? Pallete.primaryVariant
                                 : Pallete.secondary,
@@ -264,6 +265,7 @@ class SubjectMenu extends StatelessWidget {
               return BlocProvider.value(
                 value: BlocProvider.of<MainBloc>(context),
                 child: CameraScreen(
+                  color: subjectModels[index].color,
                   cameras: cameras,
                   modes: subjectModels[index].modes,
                 ),
@@ -298,10 +300,9 @@ class ProfileMenu extends StatelessWidget {
         Container(
           height: 20.0.h,
           width: 20.0.h,
-          child: Image.asset(
-            'assets/images/user.png',
-            height: 20.0.h,
-            width: 20.0.h,
+          child: Icon(
+            Icons.person_outlined,
+            size: 13.h,
           ),
           decoration: BoxDecoration(
               color: Theme.of(context).accentColor,
@@ -311,54 +312,92 @@ class ProfileMenu extends StatelessWidget {
           height: 2.0.h,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Email: ',
-              style: TextStyle(fontSize: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Email:   ',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text('sample@gmail.com'),
+              ],
             ),
-            Text('sample@gmail.com')
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return BlocProvider.value(
+                        value: BlocProvider.of<MainBloc>(context),
+                        child: EditScreen(
+                          fieldIndex: EditMode.email.index,
+                        ));
+                  }));
+                },
+                icon: Icon(Icons.edit))
           ],
         ),
         SizedBox(
           height: 1.0.h,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Username: ',
-              style: TextStyle(fontSize: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Username:   ',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text('Msughter')
+              ],
             ),
-            Text('Msughter')
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return BlocProvider.value(
+                        value: BlocProvider.of<MainBloc>(context),
+                        child: EditScreen(
+                          fieldIndex: EditMode.username.index,
+                        ));
+                  }));
+                },
+                icon: Icon(Icons.edit))
           ],
         ),
         SizedBox(
           height: 1.0.h,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'phone: ',
-              style: TextStyle(fontSize: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'phone:   ',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text('+23480891204')
+              ],
             ),
-            Text('+23480891204')
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return BlocProvider.value(
+                        value: BlocProvider.of<MainBloc>(context),
+                        child: EditScreen(
+                          fieldIndex: EditMode.phone.index,
+                        ));
+                  }));
+                },
+                icon: Icon(Icons.edit))
           ],
         ),
         SizedBox(
           height: 2.0.h,
         ),
-        Container(
-          width: 90.0.w,
-          height: 5.0.h,
-          child: Center(
-            child: Text(
-              'Edit',
-              style: TextStyle(color: Theme.of(context).primaryColor),
-            ),
-          ),
-          decoration: BoxDecoration(
-              color: Theme.of(context).accentColor,
-              borderRadius: BorderRadius.all(Radius.circular(2.0.h))),
-        )
       ],
     );
   }
@@ -409,3 +448,5 @@ class HistoryMenu extends StatelessWidget {
         ));
   }
 }
+
+enum EditMode { email, username, phone }

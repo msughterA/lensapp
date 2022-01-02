@@ -6,8 +6,14 @@ class CameraMode extends StatelessWidget {
   final Function onpressed;
   final String label;
   final bool labelisWhite;
-  final bool fillisBlack;
-  CameraMode({this.label, this.onpressed, this.labelisWhite, this.fillisBlack});
+  final bool fillisColor;
+  final Color color;
+  CameraMode(
+      {this.label,
+      this.onpressed,
+      this.labelisWhite,
+      this.fillisColor,
+      this.color});
   @override
   Widget build(BuildContext context) {
     return new Padding(
@@ -28,7 +34,7 @@ class CameraMode extends StatelessWidget {
               //change the subject state
               onpressed();
             },
-            color: fillisBlack ? Pallete.accent : Pallete.primary,
+            color: fillisColor ? color : Pallete.primary,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),
                 side: BorderSide(color: Colors.transparent)),
