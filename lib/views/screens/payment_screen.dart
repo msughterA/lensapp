@@ -33,6 +33,7 @@ class PaymentScreen extends StatelessWidget {
                       child: IconButton(
                         onPressed: () {
                           // Go back to home screen
+                          Navigator.of(context).pop();
                         },
                         icon: Icon(Icons.arrow_back_ios_outlined),
                       ),

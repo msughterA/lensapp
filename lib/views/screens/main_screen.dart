@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:lensapp/models/subject_models.dart';
 import 'edit_screen.dart';
+import 'payment_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -43,8 +44,111 @@ class _MainScreenState extends State<MainScreen> {
     final mainBloc = BlocProvider.of<MainBloc>(context);
     return Scaffold(
       drawer: Drawer(
-          // All the drawer items would go here
+        // All the drawer items would go here
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              height: double.maxFinite,
+              child: Padding(
+                padding: EdgeInsets.only(top: 2.h, left: 2.w, right: 2.w),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 20.h,
+                      color: Pallete.accent,
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(left: 4.w),
+                      height: 45.h,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) {
+                                return BlocProvider.value(
+                                    value: BlocProvider.of<MainBloc>(context),
+                                    child: PaymentScreen());
+                              })).then((value) {
+                                // Reset the state here
+                                mainBloc
+                                    .add(ResetEvent(inputState: HomeState()));
+                              });
+                            },
+                            child: Container(
+                              height: 3.h,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.account_balance_outlined),
+                                  SizedBox(
+                                    width: 2.w,
+                                  ),
+                                  Text('Payment')
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 1.h,
+                          ),
+                          Container(
+                            height: 3.h,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(Icons.info_outlined),
+                                SizedBox(
+                                  width: 2.w,
+                                ),
+                                Text('About')
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 1.h,
+                          ),
+                          Container(
+                            height: 3.h,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(Icons.share_outlined),
+                                SizedBox(
+                                  width: 2.w,
+                                ),
+                                Text('Share')
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 1.h,
+                          ),
+                          Container(
+                            height: 3.h,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(Icons.logout_outlined),
+                                SizedBox(
+                                  width: 2.w,
+                                ),
+                                Text('Log out')
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
           ),
+        ),
+      ),
       key: _scaffoldState,
       body: Sizer(
         builder: (context, orientation, deviceType) {
@@ -294,6 +398,7 @@ class ProfileMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final subBloc = BlocProvider.of<MainBloc>(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -332,7 +437,10 @@ class ProfileMenu extends StatelessWidget {
                         child: EditScreen(
                           fieldIndex: EditMode.email.index,
                         ));
-                  }));
+                  })).then((value) {
+                    // Reset the state here
+                    subBloc.add(ResetEvent(inputState: HomeState()));
+                  });
                 },
                 icon: Icon(Icons.edit))
           ],
@@ -361,7 +469,11 @@ class ProfileMenu extends StatelessWidget {
                         child: EditScreen(
                           fieldIndex: EditMode.username.index,
                         ));
-                  }));
+                  })).then((value) {
+                    // Reset the state here
+                    subBloc.add(ResetEvent(inputState: HomeState()));
+                  });
+                  ;
                 },
                 icon: Icon(Icons.edit))
           ],
@@ -390,7 +502,10 @@ class ProfileMenu extends StatelessWidget {
                         child: EditScreen(
                           fieldIndex: EditMode.phone.index,
                         ));
-                  }));
+                  })).then((value) {
+                    // Reset the state here
+                    subBloc.add(ResetEvent(inputState: HomeState()));
+                  });
                 },
                 icon: Icon(Icons.edit))
           ],
