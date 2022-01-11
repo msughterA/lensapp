@@ -5,9 +5,19 @@ import '/utils/app_themes.dart';
 // Text Input widget
 class TextInput extends StatelessWidget {
   final String hintText;
+  final TextEditingController controller;
   final Icon icon;
   final TextInputType inputType;
-  const TextInput({Key key, this.hintText, this.icon, this.inputType})
+  final Function validator;
+  final isVisible;
+  const TextInput(
+      {Key key,
+      this.hintText,
+      this.validator,
+      this.icon,
+      this.inputType,
+      this.isVisible = false,
+      this.controller})
       : super(key: key);
 
   @override
@@ -21,6 +31,10 @@ class TextInput extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: TextFormField(
+        controller: controller,
+        validator: (value) {
+          return validator(value);
+        },
         keyboardType: inputType,
         decoration: InputDecoration(
             icon: icon,

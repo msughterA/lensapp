@@ -23,6 +23,7 @@ class EditScreen extends StatelessWidget {
     // bloc reference
     final mainBloc = BlocProvider.of<MainBloc>(context);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
       body: Sizer(
         builder: (context, orientaion, deviceType) {

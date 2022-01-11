@@ -1,0 +1,15 @@
+class ApiConstants {
+  static const BASE_URL = 'http://192.168.43.36:8000';
+
+  // Account creation and Login
+  static const CREATE_ACCOUNT = '/accounts/create';
+  static const LOGIN = '/accounts/login';
+  static const VERIFY = '/accounts/verify';
+
+  // Payments
+  static const PAY_WITH_CARD = '/payments/card';
+  static const PAY_WITH_PIN = '/payments/pin';
+
+  // Summarizer
+  static const SUMMARIZER = '/summarizer/summarize';
+}
