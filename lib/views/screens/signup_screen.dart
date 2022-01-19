@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:http/http.dart';
 import '/utils/app_themes.dart';
 import 'package:sizer/sizer.dart';
 import 'package:lensapp/views/widgets/general_widgets.dart';
@@ -9,18 +10,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '/bloc/main_bloc.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({Key key}) : super(key: key);
+
+  @override
+  _SignUpScreenState createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  SignUpScreen({Key key}) : super(key: key);
   final _formKey = GlobalKey<FormState>();
   TextEditingController _userNameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
-  TextEditingController _passwordontroller = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
   String initialCountry = 'NG';
-  PhoneNumber number = PhoneNumber(isoCode: 'NG');
-
+  PhoneNumber getNumber = PhoneNumber(isoCode: 'NG');
+  bool _passwordObscure = true;
   @override
   Widget build(BuildContext context) {
     final mainBloc = BlocProvider.of<MainBloc>(context);
@@ -65,6 +72,7 @@ class SignUpScreen extends StatelessWidget {
                         hintText: 'Username',
                         inputType: TextInputType.text,
                         controller: _userNameController,
+                        obscureText: false,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter username';
@@ -82,6 +90,7 @@ class SignUpScreen extends StatelessWidget {
                         icon: Icon(Icons.email_outlined),
                         hintText: 'email',
                         inputType: TextInputType.emailAddress,
+                        obscureText: false,
                         controller: _emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -102,44 +111,54 @@ class SignUpScreen extends StatelessWidget {
                           color: Pallete.secondaryBackround,
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
-                        child: InternationalPhoneNumberInput(
-                          onInputChanged: (PhoneNumber number) {
-                            print(number.phoneNumber);
-                          },
-                          onInputValidated: (bool value) {
-                            print(value);
-                          },
-                          selectorConfig: SelectorConfig(
-                            selectorType: PhoneInputSelectorType.DIALOG,
-                          ),
-                          ignoreBlank: false,
-                          initialValue: number,
-                          textFieldController: _phoneNumberController,
-                          formatInput: false,
-                          inputDecoration: InputDecoration(
-                              icon: Icon(Icons.phone_android_outlined),
-                              labelText: 'Phone Number',
-                              hintText: 'Phone Number',
-                              //errorText:errorText() ,
-                              border: InputBorder.none,
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.red)),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Pallete.accent),
+                        child: StatefulBuilder(
+                          builder: (_context, _setState) {
+                            return InternationalPhoneNumberInput(
+                              onInputChanged: (PhoneNumber number) {
+                                print(number.phoneNumber);
+                              },
+                              onInputValidated: (bool value) {
+                                print(value);
+                              },
+                              selectorConfig: SelectorConfig(
+                                selectorType: PhoneInputSelectorType.DIALOG,
                               ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.red)),
-                              disabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Pallete.primary))),
-                          keyboardType: TextInputType.numberWithOptions(
-                              signed: true, decimal: true),
-                          inputBorder: OutlineInputBorder(),
-                          onSaved: (PhoneNumber number) {
-                            print('On Saved: $number');
+                              ignoreBlank: false,
+                              initialValue: getNumber,
+                              textFieldController: _phoneNumberController,
+                              formatInput: false,
+                              inputDecoration: InputDecoration(
+                                  icon: Icon(Icons.phone_android_outlined),
+                                  labelText: 'Phone Number',
+                                  hintText: 'Phone Number',
+                                  //errorText:errorText() ,
+                                  border: InputBorder.none,
+                                  errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.red)),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide:
+                                        BorderSide(color: Pallete.accent),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.red)),
+                                  disabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Pallete.primary))),
+                              keyboardType: TextInputType.numberWithOptions(
+                                  signed: true, decimal: true),
+                              inputBorder: OutlineInputBorder(),
+                              onSaved: (PhoneNumber number) {
+                                print('On Saved: $number');
+                                _setState(() {
+                                  getNumber = number;
+                                });
+                              },
+                            );
                           },
                         ),
                       ),
@@ -150,10 +169,20 @@ class SignUpScreen extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(left: 4.w, right: 4.w),
                       child: TextInput(
-                        icon: Icon(Icons.password_outlined),
+                        icon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _passwordObscure = !_passwordObscure;
+                            });
+                          },
+                          icon: _passwordObscure
+                              ? Icon(Icons.visibility_off_outlined)
+                              : Icon(Icons.visibility_outlined),
+                        ),
                         hintText: 'password',
                         inputType: TextInputType.text,
-                        controller: _passwordontroller,
+                        obscureText: _passwordObscure,
+                        controller: _passwordController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
@@ -171,16 +200,26 @@ class SignUpScreen extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(left: 4.w, right: 4.w),
                       child: TextInput(
-                        icon: Icon(Icons.password_outlined),
+                        icon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _passwordObscure = !_passwordObscure;
+                            });
+                          },
+                          icon: _passwordObscure
+                              ? Icon(Icons.visibility_off_outlined)
+                              : Icon(Icons.visibility_outlined),
+                        ),
                         hintText: 'Confirm Password',
                         inputType: TextInputType.text,
                         controller: _confirmPasswordController,
+                        obscureText: _passwordObscure,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please Confirm Password';
                           } else if (value.length != 8) {
                             return 'Password must be 8 characters';
-                          } else if (_passwordontroller.text !=
+                          } else if (_passwordController.text !=
                               _confirmPasswordController.text) {
                             return 'Password not match';
                           }
@@ -200,13 +239,15 @@ class SignUpScreen extends StatelessWidget {
                                   onTap: () async {
                                     if (_formKey.currentState.validate()) {
                                       // Move to th appropriate screen
+                                      _formKey.currentState.save();
+                                      String number = getNumber.phoneNumber;
+                                      print('Number is ${number}');
                                       mainBloc.add(ValidateDataEvent(
                                           username: _userNameController.text,
                                           deviceId: 'A30',
-                                          password: _passwordontroller.text,
+                                          password: _passwordController.text,
                                           email: _emailController.text,
-                                          phoneNumber:
-                                              _phoneNumberController.text));
+                                          phoneNumber: getNumber.phoneNumber));
                                     }
                                   },
                                   child: Container(
@@ -231,7 +272,7 @@ class SignUpScreen extends StatelessWidget {
                                 child: InkWell(
                                   onTap: () {
                                     // Move to th appropriate screen
-                                    Navigator.of(context).pop();
+                                    //Navigator.of(context).pop();
                                   },
                                   child: Container(
                                     height: 6.h,
@@ -259,22 +300,32 @@ class SignUpScreen extends StatelessWidget {
                               child: CircularProgressIndicator(),
                             ),
                           );
-                        } else if (state is ErrorState) {
+                        } else if (state is ValidationError) {
                           SchedulerBinding.instance
                               .addPostFrameCallback((timeStamp) {
                             showInSnackBar(state.message);
+                            mainBloc.add(ResetEvent(inputState: SignUpState()));
+                            //return Container();
                           });
-
-                          mainBloc.add(ResetEvent(inputState: SignUpState()));
                         } else if (state is VerifyState) {
+                          final vid = state.verificationId;
                           SchedulerBinding.instance
                               .addPostFrameCallback((timeStamp) {
-                            // mainBloc.add(GoToStateEvent(inputState: VerifyState()));
                             Navigator.pushReplacement(context,
                                 MaterialPageRoute(builder: (_) {
+                              mainBloc.add(GoToStateEvent(
+                                  inputState:
+                                      VerifyState(verificationId: vid)));
                               return BlocProvider.value(
                                 value: BlocProvider.of<MainBloc>(context),
-                                child: VerifyScreen(),
+                                child: VerifyScreen(
+                                  email: _emailController.text,
+                                  username: _userNameController.text,
+                                  password: _passwordController.text,
+                                  phoneNumber: getNumber.phoneNumber,
+                                  deviceId: 'a30',
+                                  verificationId: vid,
+                                ),
                               );
                             }));
                           });

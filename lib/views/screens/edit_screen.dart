@@ -106,7 +106,7 @@ class EditScreen extends StatelessWidget {
                     } else if (state is EditError) {
                       SchedulerBinding.instance
                           .addPostFrameCallback((timeStamp) {
-                        showInSnackBar('An error occurred');
+                        showInSnackBar(state.message);
                         mainBloc
                             .add(DisplayErrorEvent(inputState: HomeState()));
                       });

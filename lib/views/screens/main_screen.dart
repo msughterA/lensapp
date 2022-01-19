@@ -16,6 +16,7 @@ import 'package:camera/camera.dart';
 import 'package:lensapp/models/subject_models.dart';
 import 'edit_screen.dart';
 import 'payment_screen.dart';
+import 'logout_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -126,17 +127,37 @@ class _MainScreenState extends State<MainScreen> {
                           SizedBox(
                             height: 1.h,
                           ),
-                          Container(
-                            height: 3.h,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(Icons.logout_outlined),
-                                SizedBox(
-                                  width: 2.w,
-                                ),
-                                Text('Log out')
-                              ],
+                          GestureDetector(
+                            onTap: () {
+                              // Move to the logout screen
+                              mainBloc.add(
+                                  GoToStateEvent(inputState: LogOutState()));
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) {
+                                return BlocProvider.value(
+                                    value: BlocProvider.of<MainBloc>(context),
+                                    child: LogoutScreen(
+                                      phoneNumber: '+2347061570373',
+                                      deviceId: 'a30',
+                                    ));
+                              })).then((value) {
+                                // Reset the state here
+                                mainBloc
+                                    .add(ResetEvent(inputState: HomeState()));
+                              });
+                            },
+                            child: Container(
+                              height: 3.h,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.logout_outlined),
+                                  SizedBox(
+                                    width: 2.w,
+                                  ),
+                                  Text('Log out')
+                                ],
+                              ),
                             ),
                           ),
                         ],

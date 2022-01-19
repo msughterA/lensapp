@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'app_exceptions.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +14,8 @@ class BaseClient {
     try {
       var response = await http
           .post(uri,
-              headers: {"Content-type": "application/json"}, body: payload)
+              headers: {"Content-type": "application/json; charset=UTF-8"},
+              body: payload)
           .timeout(Duration(seconds: TIME_OUT_DURATION));
       return _processResponse(response);
     } on SocketException {
@@ -29,10 +29,28 @@ class BaseClient {
   Future<dynamic> put(
       String baseUrl, String api, Map<String, dynamic> payloadObj) async {
     var uri = Uri.parse(baseUrl + api);
-    var payload = json.encode(payloadObj);
+    var payload = convert.jsonEncode(payloadObj);
     try {
       var response = await http
           .put(uri,
+              headers: {"Content-type": "application/json"}, body: payload)
+          .timeout(Duration(seconds: TIME_OUT_DURATION));
+      return _processResponse(response);
+    } on SocketException {
+      throw FetchDataException('No Internet connection', uri.toString());
+    } on TimeoutException {
+      throw ApiNotRespondingException('Took longer to respond', uri.toString());
+    }
+  }
+
+  //DELETE
+  Future<dynamic> delete(
+      String baseUrl, String api, Map<String, dynamic> payloadObj) async {
+    var uri = Uri.parse(baseUrl + api);
+    var payload = convert.jsonEncode(payloadObj);
+    try {
+      var response = await http
+          .delete(uri,
               headers: {"Content-type": "application/json"}, body: payload)
           .timeout(Duration(seconds: TIME_OUT_DURATION));
       return _processResponse(response);

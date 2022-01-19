@@ -6,17 +6,17 @@ import '/utils/app_themes.dart';
 class TextInput extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
-  final Icon icon;
+  final Widget icon;
   final TextInputType inputType;
   final Function validator;
-  final isVisible;
+  final bool obscureText;
   const TextInput(
       {Key key,
       this.hintText,
       this.validator,
       this.icon,
       this.inputType,
-      this.isVisible = false,
+      this.obscureText,
       this.controller})
       : super(key: key);
 
@@ -36,6 +36,7 @@ class TextInput extends StatelessWidget {
           return validator(value);
         },
         keyboardType: inputType,
+        obscureText: obscureText ?? false,
         decoration: InputDecoration(
             icon: icon,
             labelText: this.hintText,
