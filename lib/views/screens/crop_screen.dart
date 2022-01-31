@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '/utils/app_themes.dart';
 import 'dart:typed_data';
@@ -9,6 +10,13 @@ import 'package:sizer/sizer.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import '../widgets/camera_screen_widgets.dart';
 import 'package:lensapp/models/subject_models.dart';
+import 'package:lensapp/bloc/main_bloc.dart';
+import 'main_screen.dart' as mn;
+import 'package:lensapp/bloc/main_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'qa_screen.dart';
+import 'summarizer_screen.dart';
+import 'examples_screen.dart';
 
 //import 'camera_screen.dart';
 void main() {}
@@ -18,8 +26,14 @@ class CropScreen extends StatefulWidget {
   final List<Mode> modes;
   final int selectedModeIndex;
   final Color color;
+  final mn.Module module;
   CropScreen(
-      {Key key, this.image, this.modes, this.selectedModeIndex, this.color})
+      {Key key,
+      this.image,
+      this.modes,
+      this.module,
+      this.selectedModeIndex,
+      this.color})
       : super(key: key);
 
   @override
@@ -29,6 +43,7 @@ class CropScreen extends StatefulWidget {
 class _CropScreenState extends State<CropScreen> {
   final _cropController = CropController();
   int _selectedModeIndex = 0;
+  bool _isLoading = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -38,6 +53,7 @@ class _CropScreenState extends State<CropScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final mainBloc = BlocProvider.of<MainBloc>(context);
     return Scaffold(
       body: SafeArea(
         child: Sizer(
@@ -66,14 +82,26 @@ class _CropScreenState extends State<CropScreen> {
                           padding: EdgeInsets.only(right: 2.0.w),
                           child: InkWell(
                             onTap: () {
-                              // Crop the image
-                              _cropController.crop();
+                              if (_isLoading == false) {
+                                // notify is loading icon
+                                setState(() {
+                                  _isLoading = true;
+                                });
+                                // Crop the image
+                                _cropController.crop();
+                              }
                             },
                             child: Container(
                               height: 4.0.h,
                               width: 18.0.w,
                               child: Center(
-                                child: Text('Crop'),
+                                child: _isLoading
+                                    ? SizedBox(
+                                        height: 12.0,
+                                        width: 12.0,
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : Text('Crop'),
                               ),
                               decoration: BoxDecoration(
                                   color: widget.color,
@@ -94,6 +122,49 @@ class _CropScreenState extends State<CropScreen> {
                     controller: _cropController,
                     onCropped: (image) {
                       // Push to the Result rendering screen and make an api call
+                      var _img = base64Encode(image);
+                      // send the image to the question and answer display screen
+                      if (widget.module == mn.Module.mathematics) {
+                        mainBloc.add(CalculateEvent(
+                            img: _img,
+                            mode: widget.modes[_selectedModeIndex].mode));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return BlocProvider.value(
+                            value: BlocProvider.of<MainBloc>(context),
+                            child: AnswerScreen(),
+                          );
+                        }));
+                      } else if (widget.module == mn.Module.summarizer) {
+                        mainBloc.add(SummarizeEvent(
+                            img: _img,
+                            mode: widget.modes[_selectedModeIndex].mode));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return BlocProvider.value(
+                            value: BlocProvider.of<MainBloc>(context),
+                            child: SummarizerScreen(),
+                          );
+                        }));
+                      } else if (widget.module == mn.Module.chemistry) {
+                        mainBloc.add(AnswerChemistryEvent(
+                            img: _img,
+                            mode: widget.modes[_selectedModeIndex].mode));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return BlocProvider.value(
+                            value: BlocProvider.of<MainBloc>(context),
+                            child: ChemistryAnswer(),
+                          );
+                        }));
+                      } else if (widget.module == mn.Module.examples) {
+                        mainBloc.add(ExampleEvent(
+                            img: _img,
+                            mode: widget.modes[_selectedModeIndex].mode));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return BlocProvider.value(
+                            value: BlocProvider.of<MainBloc>(context),
+                            child: ExampleScreen(),
+                          );
+                        }));
+                      }
                     },
                   )),
                 ),

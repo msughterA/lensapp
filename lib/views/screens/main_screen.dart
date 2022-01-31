@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 //import 'package:flutter_svg/avd.dart';
 //import 'package:flutter_svg/';
 import '/utils/app_themes.dart';
@@ -17,6 +18,8 @@ import 'package:lensapp/models/subject_models.dart';
 import 'edit_screen.dart';
 import 'payment_screen.dart';
 import 'logout_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'history_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -26,7 +29,10 @@ void main() {
 }
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key key}) : super(key: key);
+  final String phoneNumber;
+  final String deviceId;
+  const MainScreen({Key key, this.deviceId, this.phoneNumber})
+      : super(key: key);
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -37,8 +43,27 @@ class _MainScreenState extends State<MainScreen> {
 
   int currentPageValue = 0;
   List<String> HeaderText = ['Subject', 'History', 'Profile'];
-  List<Widget> pages = [SubjectMenu(), HistoryMenu(), ProfileMenu()];
   GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+  List<Widget> pages;
+  Future storeDetails({String phonenumber, deviceId}) async {
+    final pref = await SharedPreferences.getInstance();
+    pref.setString('phoneNumber', phonenumber);
+    pref.setString('deviceId', deviceId);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    pages = [
+      SubjectMenu(),
+      HistoryMenu(),
+      ProfileMenu(
+        phoneNumber: widget.phoneNumber,
+      )
+    ];
+    //storeDetails(phonenumber: widget.phoneNumber, deviceId: widget.deviceId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +162,8 @@ class _MainScreenState extends State<MainScreen> {
                                 return BlocProvider.value(
                                     value: BlocProvider.of<MainBloc>(context),
                                     child: LogoutScreen(
-                                      phoneNumber: '+2347061570373',
-                                      deviceId: 'a30',
+                                      phoneNumber: widget.phoneNumber,
+                                      deviceId: widget.deviceId,
                                     ));
                               })).then((value) {
                                 // Reset the state here
@@ -338,18 +363,25 @@ class _MainScreenState extends State<MainScreen> {
                   //ProfileMenu()
                   //SubjectMenu()
                   //HistoryMenu()
-                  Expanded(
-                      child: PageView.builder(
-                          onPageChanged: (value) {
-                            setState(() {
-                              currentPageValue = value;
-                            });
-                          },
-                          itemCount: pages.length,
-                          controller: pageController,
-                          itemBuilder: (context, index) {
-                            return pages[index];
-                          }))
+                  pages != null
+                      ? Expanded(
+                          child: PageView.builder(
+                              onPageChanged: (value) {
+                                setState(() {
+                                  currentPageValue = value;
+                                });
+                              },
+                              itemCount: pages.length,
+                              controller: pageController,
+                              itemBuilder: (context, index) {
+                                return pages[index];
+                              }))
+                      : Expanded(
+                          child: Container(
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ))
                 ],
               ),
             ),
@@ -370,13 +402,14 @@ class SubjectMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final subBloc = BlocProvider.of<MainBloc>(context);
     return StaggeredGridView.countBuilder(
       // addRepaintBoundaries: false,
       // shrinkWrap: false,
 
       padding: EdgeInsets.all(0),
       crossAxisCount: 2,
-      itemCount: 5,
+      itemCount: 4,
       crossAxisSpacing: 4.0.w,
       mainAxisSpacing: 2.0.h,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
@@ -393,6 +426,7 @@ class SubjectMenu extends StatelessWidget {
                   color: subjectModels[index].color,
                   cameras: cameras,
                   modes: subjectModels[index].modes,
+                  module: Module.values[index],
                 ),
               );
             }));
@@ -415,7 +449,8 @@ class SubjectMenu extends StatelessWidget {
 
 // Profile Menu
 class ProfileMenu extends StatelessWidget {
-  const ProfileMenu({Key key}) : super(key: key);
+  final String phoneNumber;
+  const ProfileMenu({Key key, this.phoneNumber}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -447,7 +482,7 @@ class ProfileMenu extends StatelessWidget {
                   'Email:   ',
                   style: TextStyle(fontSize: 16),
                 ),
-                Text('sample@gmail.com'),
+                Text('msughtera37@gmail.com'),
               ],
             ),
             IconButton(
@@ -469,36 +504,6 @@ class ProfileMenu extends StatelessWidget {
         SizedBox(
           height: 1.0.h,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  'Username:   ',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text('Msughter')
-              ],
-            ),
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return BlocProvider.value(
-                        value: BlocProvider.of<MainBloc>(context),
-                        child: EditScreen(
-                          fieldIndex: EditMode.username.index,
-                        ));
-                  })).then((value) {
-                    // Reset the state here
-                    subBloc.add(ResetEvent(inputState: HomeState()));
-                  });
-                  ;
-                },
-                icon: Icon(Icons.edit))
-          ],
-        ),
         SizedBox(
           height: 1.0.h,
         ),
@@ -512,7 +517,7 @@ class ProfileMenu extends StatelessWidget {
                   'phone:   ',
                   style: TextStyle(fontSize: 16),
                 ),
-                Text('+23480891204')
+                Text(phoneNumber)
               ],
             ),
             IconButton(
@@ -550,22 +555,31 @@ class HistoryMenu extends StatelessWidget {
         itemCount: subjectModels.length,
         itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
           var title = subjectModels[itemIndex].subjectName;
-          return Container(
-            height: 50.h,
-            width: 40.w,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text('200 queries'),
-                  subjectModels[itemIndex].icon,
-                  Text('${title}')
-                ],
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return HistoryScreen(
+                  module: Module.values[itemIndex],
+                );
+              }));
+            },
+            child: Container(
+              height: 50.h,
+              width: 40.w,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text('200 queries'),
+                    subjectModels[itemIndex].icon,
+                    Text('${title}')
+                  ],
+                ),
               ),
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5.h)),
-              color: subjectModels[itemIndex].color,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5.h)),
+                color: subjectModels[itemIndex].color,
+              ),
             ),
           );
         },
@@ -586,3 +600,4 @@ class HistoryMenu extends StatelessWidget {
 }
 
 enum EditMode { email, username, phone }
+enum Module { mathematics, summarizer, examples, chemistry }

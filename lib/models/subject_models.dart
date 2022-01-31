@@ -71,6 +71,14 @@ List<Mode> physicsModes = [
       description: 'gives you examples to questions in mathematics'),
 ];
 
+// Examples
+List<Mode> exampleModes = [
+  Mode(
+      description:
+          'Give you sample guides on how to answer a Mathematics question',
+      mode: 'Mathematics'),
+];
+
 // Summary
 List<Mode> summarizeModes = [
   Mode(
@@ -79,6 +87,49 @@ List<Mode> summarizeModes = [
 ];
 
 List<SubjectModel> subjectModels = [
+  // Mathematics
+  SubjectModel(
+      color: Colors.redAccent,
+      icon: Icon(
+        Icons.calculate_outlined,
+        color: Colors.black,
+        size: 5.0.h,
+      ),
+      modes: mathematicsModes,
+      subjectName: 'Mathematics'),
+// Summarizer
+  SubjectModel(
+      color: Colors.orangeAccent,
+      icon: Icon(
+        Icons.summarize_outlined,
+        color: Colors.black,
+        size: 5.0.h,
+      ),
+      modes: summarizeModes,
+      subjectName: 'Summarizer'),
+  // Examples
+  SubjectModel(
+      color: Colors.blueAccent,
+      icon: Icon(
+        Icons.stream_outlined,
+        color: Colors.black,
+        size: 5.0.h,
+      ),
+      modes: exampleModes,
+      subjectName: 'Examples'),
+  // Chemistry
+  SubjectModel(
+      color: Colors.deepPurple,
+      icon: Icon(
+        Icons.biotech_outlined,
+        color: Colors.black,
+        size: 5.0.h,
+      ),
+      modes: chemistryModes,
+      subjectName: 'Chemistry')
+];
+
+List<SubjectModel> FutureSubjectModels = [
   // Mathematics
   SubjectModel(
       color: Colors.redAccent,

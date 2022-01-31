@@ -46,7 +46,7 @@ class EditScreen extends StatelessWidget {
                 ),
                 BlocBuilder<MainBloc, MainState>(
                   builder: (context, state) {
-                    if (state is HomeState) {
+                    if (state is EditState) {
                       return Column(children: [
                         Padding(
                           padding:

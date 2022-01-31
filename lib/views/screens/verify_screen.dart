@@ -9,6 +9,7 @@ import '/bloc/main_bloc.dart';
 import 'main_screen.dart';
 import 'signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VerifyScreen extends StatelessWidget {
   final String username;
@@ -29,6 +30,13 @@ class VerifyScreen extends StatelessWidget {
       this.deviceId})
       : super(key: key);
   TextEditingController _otpController = TextEditingController();
+
+  Future storeDetails({String phonenumber, String deviceId}) async {
+    final pref = await SharedPreferences.getInstance();
+    pref.setString('phoneNumber', phonenumber);
+    pref.setString('deviceId', deviceId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final mainBloc = BlocProvider.of<MainBloc>(context);
@@ -191,11 +199,16 @@ class VerifyScreen extends StatelessWidget {
                           } else if (state is HomeState) {
                             SchedulerBinding.instance
                                 .addPostFrameCallback((timeStamp) {
+                              storeDetails(
+                                  phonenumber: phoneNumber, deviceId: deviceId);
                               Navigator.pushReplacement(context,
                                   MaterialPageRoute(builder: (_) {
-                                return BlocProvider.value(
-                                  value: BlocProvider.of<MainBloc>(context),
-                                  child: MainScreen(),
+                                return BlocProvider(
+                                  create: (context) => MainBloc(HomeState()),
+                                  child: MainScreen(
+                                    phoneNumber: phoneNumber,
+                                    deviceId: deviceId,
+                                  ),
                                 );
                               }));
                             });

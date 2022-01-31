@@ -12,7 +12,9 @@ import 'dart:io';
 import 'camera_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
-
+import 'package:lensapp/bloc/main_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'main_screen.dart';
 //List<CameraDescription> cameras;
 
 void main() async {
@@ -25,7 +27,9 @@ class CameraScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
   final List<Mode> modes;
   final Color color;
-  const CameraScreen({Key key, this.cameras, this.modes, this.color})
+  final Module module;
+  const CameraScreen(
+      {Key key, this.cameras, this.modes, this.module, this.color})
       : super(key: key);
 
   @override
@@ -87,6 +91,7 @@ class _CameraScreenState extends State<CameraScreen>
 
   @override
   Widget build(BuildContext context) {
+    final mainBloc = BlocProvider.of<MainBloc>(context);
     return Scaffold(
       backgroundColor: Colors.black,
       key: _scaffoldKey,
@@ -209,12 +214,16 @@ class _CameraScreenState extends State<CameraScreen>
                           Uint8List imageUnit8List = await pickFromPhotos();
                           if (imageUnit8List != null) {
                             Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return CropScreen(
-                                modes: widget.modes,
-                                color: widget.color,
-                                image: imageUnit8List,
-                                selectedModeIndex: _selectedModeIndex,
+                                MaterialPageRoute(builder: (_) {
+                              return BlocProvider.value(
+                                value: BlocProvider.of<MainBloc>(context),
+                                child: CropScreen(
+                                  modes: widget.modes,
+                                  color: widget.color,
+                                  image: imageUnit8List,
+                                  selectedModeIndex: _selectedModeIndex,
+                                  module: widget.module,
+                                ),
                               );
                             }));
                           } else {
@@ -237,14 +246,17 @@ class _CameraScreenState extends State<CameraScreen>
                           // take the picture
                           Uint8List imageUnit8List = await takePicture();
                           if (imageUnit8List != null) {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return CropScreen(
-                                image: imageUnit8List,
-                                color: widget.color,
-                                modes: widget.modes,
-                                selectedModeIndex: _selectedModeIndex,
-                              );
+                            Navigator.pushReplacement(context,
+                                MaterialPageRoute(builder: (_) {
+                              return BlocProvider.value(
+                                  value: BlocProvider.of<MainBloc>(context),
+                                  child: CropScreen(
+                                    image: imageUnit8List,
+                                    color: widget.color,
+                                    modes: widget.modes,
+                                    selectedModeIndex: _selectedModeIndex,
+                                    module: widget.module,
+                                  ));
                             }));
                           } else {
                             showInSnackBar('Camera error');

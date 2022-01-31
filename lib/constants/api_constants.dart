@@ -12,4 +12,13 @@ class ApiConstants {
 
   // Summarizer
   static const SUMMARIZER = '/summarizer/summarize';
+
+  // Mathematics
+  static const MATHEMATICS = '/mathematics/mathematics';
+
+  // Chemistry
+  static const CHEMISTRY = '/chemistry/chemistry';
+
+  // Examples
+  static const EXAMPLES = '/examples';
 }

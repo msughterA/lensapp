@@ -3,12 +3,18 @@ import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart';
 import '/utils/app_themes.dart';
 import 'package:sizer/sizer.dart';
-import 'package:lensapp/views/widgets/general_widgets.dart';
+import 'package:lensapp/views/widgets/general_widgets.dart' as InputWidget;
 import 'verify_screen.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '/bloc/main_bloc.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'login_screen.dart';
+import 'dart:io';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key key}) : super(key: key);
@@ -28,6 +34,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String initialCountry = 'NG';
   PhoneNumber getNumber = PhoneNumber(isoCode: 'NG');
   bool _passwordObscure = true;
+  static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  Map<String, dynamic> _deviceData = <String, dynamic>{};
+  //Function to store all the necessary
+
+  Future storeDetails({String phonenumber, String email, String names}) async {
+    String id = _deviceData['id'];
+    String product = _deviceData['product'];
+    String model = _deviceData['model'];
+
+    String deviceId = product + model + id;
+    final pref = await SharedPreferences.getInstance();
+    pref.setString('phoneNumber', phonenumber);
+    pref.setString('deviceId', deviceId);
+    pref.setString('email', email);
+    pref.setString('names', names);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final mainBloc = BlocProvider.of<MainBloc>(context);
@@ -67,7 +96,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     // email input field
                     Padding(
                       padding: EdgeInsets.only(left: 4.w, right: 4.w),
-                      child: TextInput(
+                      child: InputWidget.TextInput(
                         icon: Icon(Icons.text_fields_outlined),
                         hintText: 'Username',
                         inputType: TextInputType.text,
@@ -86,7 +115,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 4.w, right: 4.w),
-                      child: TextInput(
+                      child: InputWidget.TextInput(
                         icon: Icon(Icons.email_outlined),
                         hintText: 'email',
                         inputType: TextInputType.emailAddress,
@@ -168,7 +197,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 4.w, right: 4.w),
-                      child: TextInput(
+                      child: InputWidget.TextInput(
                         icon: IconButton(
                           onPressed: () {
                             setState(() {
@@ -199,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 4.w, right: 4.w),
-                      child: TextInput(
+                      child: InputWidget.TextInput(
                         icon: IconButton(
                           onPressed: () {
                             setState(() {
@@ -240,11 +269,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     if (_formKey.currentState.validate()) {
                                       // Move to th appropriate screen
                                       _formKey.currentState.save();
-                                      String number = getNumber.phoneNumber;
-                                      print('Number is ${number}');
+                                      String deviceId = getDeviceId();
+                                      print('Device id is ${deviceId}');
                                       mainBloc.add(ValidateDataEvent(
                                           username: _userNameController.text,
-                                          deviceId: 'A30',
+                                          deviceId: deviceId,
                                           password: _passwordController.text,
                                           email: _emailController.text,
                                           phoneNumber: getNumber.phoneNumber));
@@ -272,7 +301,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 child: InkWell(
                                   onTap: () {
                                     // Move to th appropriate screen
-                                    //Navigator.of(context).pop();
+                                    mainBloc.add(GoToStateEvent(
+                                        inputState: LogInState()));
+                                    Navigator.pushReplacement(context,
+                                        MaterialPageRoute(builder: (_) {
+                                      return BlocProvider(
+                                        create: (context) =>
+                                            MainBloc(LogInState()),
+                                        child: LoginScreen(),
+                                      );
+                                    }));
                                   },
                                   child: Container(
                                     height: 6.h,
@@ -313,17 +351,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               .addPostFrameCallback((timeStamp) {
                             Navigator.pushReplacement(context,
                                 MaterialPageRoute(builder: (_) {
-                              mainBloc.add(GoToStateEvent(
-                                  inputState:
-                                      VerifyState(verificationId: vid)));
-                              return BlocProvider.value(
-                                value: BlocProvider.of<MainBloc>(context),
+                              return BlocProvider(
+                                create: (context) =>
+                                    MainBloc(VerifyState(verificationId: vid)),
                                 child: VerifyScreen(
                                   email: _emailController.text,
                                   username: _userNameController.text,
                                   password: _passwordController.text,
                                   phoneNumber: getNumber.phoneNumber,
-                                  deviceId: 'a30',
+                                  deviceId: getDeviceId(),
                                   verificationId: vid,
                                 ),
                               );
@@ -347,6 +383,71 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> initPlatformState() async {
+    var deviceData = <String, dynamic>{};
+
+    try {
+      if (kIsWeb) {
+        //deviceData = _readWebBrowserInfo(await deviceInfoPlugin.webBrowserInfo);
+      } else {
+        if (Platform.isAndroid) {
+          deviceData =
+              _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+        }
+      }
+    } on PlatformException {
+      deviceData = <String, dynamic>{
+        'Error:': 'Failed to get platform version.'
+      };
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _deviceData = deviceData;
+    });
+  }
+
+  String getDeviceId() {
+    String id = _deviceData['id'];
+    String product = _deviceData['product'];
+    String model = _deviceData['model'];
+    String deviceId = product + model + id;
+    return deviceId;
+  }
+
+  Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+    return <String, dynamic>{
+      'version.securityPatch': build.version.securityPatch,
+      'version.sdkInt': build.version.sdkInt,
+      'version.release': build.version.release,
+      'version.previewSdkInt': build.version.previewSdkInt,
+      'version.incremental': build.version.incremental,
+      'version.codename': build.version.codename,
+      'version.baseOS': build.version.baseOS,
+      'board': build.board,
+      'bootloader': build.bootloader,
+      'brand': build.brand,
+      'device': build.device,
+      'display': build.display,
+      'fingerprint': build.fingerprint,
+      'hardware': build.hardware,
+      'host': build.host,
+      'id': build.id,
+      'manufacturer': build.manufacturer,
+      'model': build.model,
+      'product': build.product,
+      'supported32BitAbis': build.supported32BitAbis,
+      'supported64BitAbis': build.supported64BitAbis,
+      'supportedAbis': build.supportedAbis,
+      'tags': build.tags,
+      'type': build.type,
+      'isPhysicalDevice': build.isPhysicalDevice,
+      'androidId': build.androidId,
+      'systemFeatures': build.systemFeatures,
+    };
   }
 
   void showInSnackBar(String message) {

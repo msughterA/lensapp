@@ -6,12 +6,20 @@ import '/utils/app_themes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '/bloc/main_bloc.dart';
 import 'login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogoutScreen extends StatelessWidget {
   final String phoneNumber;
   final String deviceId;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   LogoutScreen({Key key, this.phoneNumber, this.deviceId}) : super(key: key);
+
+  //
+  Future deleteDetails() async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     final mainBloc = BlocProvider.of<MainBloc>(context);
@@ -113,11 +121,14 @@ class LogoutScreen extends StatelessWidget {
                           child: Padding(
                             padding: EdgeInsets.only(top: 0),
                             child: Container(
-                              height: 12.h,
-                              width: 12.h,
+                              height: 15.h,
+                              width: 15.h,
                               child: Column(
                                 children: [
                                   CircularProgressIndicator(),
+                                  SizedBox(
+                                    height: 2.h,
+                                  ),
                                   Text('Logging out....')
                                 ],
                               ),
@@ -133,12 +144,11 @@ class LogoutScreen extends StatelessWidget {
                       } else if (state is LogInState) {
                         SchedulerBinding.instance
                             .addPostFrameCallback((timeStamp) {
+                          deleteDetails();
                           Navigator.pushReplacement(context,
                               MaterialPageRoute(builder: (_) {
-                            mainBloc
-                                .add(GoToStateEvent(inputState: LogInState()));
-                            return BlocProvider.value(
-                              value: BlocProvider.of<MainBloc>(context),
+                            return BlocProvider(
+                              create: (context) => MainBloc(LogInState()),
                               child: LoginScreen(),
                             );
                           }));

@@ -29,6 +29,38 @@ class LogOutEvent extends MainEvent {
   List<Object> get props => [phoneNumber, deviceId];
 }
 
+class SummarizeEvent extends MainEvent {
+  final img;
+  final mode;
+  SummarizeEvent({this.img, this.mode});
+  @override
+  List<Object> get props => [img, mode];
+}
+
+class ExampleEvent extends MainEvent {
+  final img;
+  final mode;
+  ExampleEvent({this.img, this.mode});
+  @override
+  List<Object> get props => [img, mode];
+}
+
+class AnswerChemistryEvent extends MainEvent {
+  final img;
+  final mode;
+  AnswerChemistryEvent({this.img, this.mode});
+  @override
+  List<Object> get props => [img, mode];
+}
+
+class CalculateEvent extends MainEvent {
+  final img;
+  final mode;
+  CalculateEvent({this.img, this.mode});
+  @override
+  List<Object> get props => [img, mode];
+}
+
 class VerifyErrorEvent extends MainEvent {
   final String message;
   VerifyErrorEvent({this.message});
@@ -106,6 +138,63 @@ class MainState extends Equatable {
   List<Object> get props => [];
 }
 
+class Calculatiing extends MainState {}
+
+class Solution extends MainState {
+  final List question;
+  final List answer;
+  Solution({this.answer, this.question});
+  @override
+  List<Object> get props => [question, answer];
+}
+
+class Example extends MainState {
+  final List examples;
+  Example({this.examples});
+  @override
+  List<Object> get props => [examples];
+}
+
+class AnsweredChemistry extends MainState {
+  final List question;
+  final List answer;
+  AnsweredChemistry({this.answer, this.question});
+  @override
+  List<Object> get props => [question, answer];
+}
+
+class Summary extends MainState {
+  final List summary;
+  Summary({this.summary});
+  @override
+  List<Object> get props => [summary];
+}
+
+class SummaryError extends MainState {
+  final String message;
+  SummaryError({this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class ExampleError extends MainState {
+  final String message;
+  ExampleError({this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class AnswerChemistryError extends MainState {
+  final String message;
+  AnswerChemistryError({this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class AnsweringChemistry extends MainState {}
+
+class ExampleLoading extends MainState {}
+
 class LogInState extends MainState {}
 
 class LogInLoadingState extends MainState {}
@@ -113,6 +202,13 @@ class LogInLoadingState extends MainState {}
 class LogInError extends MainState {
   final String message;
   LogInError({this.message});
+  @override
+  List<Object> get props => [];
+}
+
+class CalculationError extends MainState {
+  final String message;
+  CalculationError({this.message});
   @override
   List<Object> get props => [];
 }
@@ -129,6 +225,8 @@ class VerifyLoadingState extends MainState {}
 class LogOutState extends MainState {}
 
 class LogOutLoadingState extends MainState {}
+
+class Summarizing extends MainState {}
 
 class VerifyError extends MainState {
   final String message;
@@ -165,6 +263,8 @@ class ValidationError extends MainState {
   @override
   List<Object> get props => [];
 }
+
+class EditState extends MainState {}
 
 class EditedState extends MainState {}
 
@@ -215,12 +315,20 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         deviceId: event.deviceId,
         phoneNumber: event.phoneNumber));
     on<GoToStateEvent>((event, emit) => emit(event.inputState));
+    on<CalculateEvent>((event, emit) =>
+        calculate(emit: emit, img: event.img, mode: event.mode));
     on<LogOutEvent>((event, emit) =>
         logOut(phoneNumber: event.phoneNumber, deviceId: event.deviceId));
-    on<LogInEvent>((event, emit) => login(
+    on<LogInEvent>((event, emit) => runLogin(
         password: event.password,
         deviceId: event.deviceId,
         phoneNumber: event.phoneNumber));
+    on<SummarizeEvent>(
+        (event, emit) => summarize(img: event.img, mode: event.mode));
+    on<AnswerChemistryEvent>(
+        (event, emit) => answerChemistry(img: event.img, mode: event.mode));
+    on<ExampleEvent>(
+        (event, emit) => example(img: event.img, mode: event.mode));
   }
 
   @override
@@ -374,6 +482,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
   }
 
+  runLogin({Emitter emit, phoneNumber, deviceId, password}) async {
+    var response = await login(
+        emit: emit,
+        password: password,
+        phoneNumber: phoneNumber,
+        deviceId: deviceId);
+    if (response != null) {
+      print('response is not null');
+      add(GoToStateEvent(inputState: HomeState()));
+    }
+  }
+
   Future login({Emitter emit, phoneNumber, deviceId, password}) async {
     var request = {
       'phone_number': phoneNumber,
@@ -382,13 +502,75 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     };
     add(GoToStateEvent(inputState: LogInLoadingState()));
     var response = await BaseClient()
-        .put(ApiConstants.BASE_URL, ApiConstants.LOGIN, request)
+        .post(ApiConstants.BASE_URL, ApiConstants.LOGIN, request)
         .catchError((error) {
       handleError(ErrorType.logInError, error);
     });
+    return response;
+  }
 
+  Future calculate({Emitter emit, var img, String mode}) async {
+    var request = {'image': img, 'mode': mode};
+    add(GoToStateEvent(inputState: Calculatiing()));
+    var response = await BaseClient()
+        .post(ApiConstants.BASE_URL, ApiConstants.MATHEMATICS, request)
+        .catchError((error) {
+      handleError(ErrorType.calculationError, error);
+    });
     if (response != null) {
-      add(GoToStateEvent(inputState: HomeState()));
+      var question = response['question'];
+      var answer = response['answer'];
+      print('Adding Event to the bloc');
+      print(question);
+      emit(Solution(question: question, answer: answer));
+    } else {
+      print('A SERVER ERROR OCCURRED');
+      handleError(ErrorType.calculationError, 'Server error');
+    }
+  }
+
+  Future summarize({var img, String mode}) async {
+    var request = {'image': img, 'mode': mode};
+    add(GoToStateEvent(inputState: Summarizing()));
+    var response = await BaseClient()
+        .post(ApiConstants.BASE_URL, ApiConstants.SUMMARIZER, request);
+    if (response != null) {
+      var summary = response['summary'];
+      add(GoToStateEvent(inputState: Summary(summary: summary)));
+    } else {
+      print('A SERVER ERROR OCCURRED');
+      handleError(ErrorType.summaryError, 'Server error');
+    }
+  }
+
+  Future example({var img, String mode}) async {
+    var request = {'image': img, 'mode': mode};
+    add(GoToStateEvent(inputState: ExampleLoading()));
+    var response = await BaseClient()
+        .post(ApiConstants.BASE_URL, ApiConstants.EXAMPLES, request);
+    if (response != null) {
+      var examples = response['examples'];
+      print(examples);
+      add(GoToStateEvent(inputState: Example(examples: examples)));
+    } else {
+      print('A SERVER ERROR OCCURRED');
+      handleError(ErrorType.exampleError, 'Server error');
+    }
+  }
+
+  Future answerChemistry({var img, String mode}) async {
+    var request = {'image': img, 'mode': mode};
+    add(GoToStateEvent(inputState: AnsweringChemistry()));
+    var response = await BaseClient()
+        .post(ApiConstants.BASE_URL, ApiConstants.CHEMISTRY, request);
+    if (response != null) {
+      var question = response['question'];
+      var answer = response['answer'];
+      add(GoToStateEvent(
+          inputState: AnsweredChemistry(question: question, answer: answer)));
+    } else {
+      print('A SERVER ERROR OCCURRED');
+      handleError(ErrorType.answerChemistryError, 'Server error');
     }
   }
 
@@ -430,8 +612,20 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       case ErrorType.signUpError:
         add(GoToStateEvent(inputState: SignUpError(message: message)));
         break;
+      case ErrorType.calculationError:
+        add(GoToStateEvent(inputState: CalculationError(message: message)));
+        break;
       case ErrorType.editError:
         add(GoToStateEvent(inputState: EditError(message: message)));
+        break;
+      case ErrorType.summaryError:
+        add(GoToStateEvent(inputState: SummaryError(message: message)));
+        break;
+      case ErrorType.answerChemistryError:
+        add(GoToStateEvent(inputState: AnswerChemistryError(message: message)));
+        break;
+      case ErrorType.exampleError:
+        add(GoToStateEvent(inputState: ExampleError(message: message)));
         break;
       default:
     }
@@ -444,5 +638,9 @@ enum ErrorType {
   validateError,
   verifyError,
   signUpError,
-  editError
+  editError,
+  calculationError,
+  summaryError,
+  answerChemistryError,
+  exampleError,
 }
