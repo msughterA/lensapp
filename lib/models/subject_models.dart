@@ -37,13 +37,13 @@ List<Mode> chemistryModes = [
   Mode(
       mode: 'Auto',
       description: 'automatically figure out how to chemistry question'),
-  Mode(mode: 'Balance', description: 'Balance chemical equations'),
-  Mode(
-      mode: 'Objective',
-      description: 'gives you answers to objective question in chemistry'),
-  Mode(
-      mode: 'Examples',
-      description: 'gives you examples to questions in chemistry'),
+  //Mode(mode: 'Balance', description: 'Balance chemical equations'),
+  //Mode(
+  //    mode: 'Objective',
+  //    description: 'gives you answers to objective question in chemistry'),
+  //Mode(
+  //    mode: 'Examples',
+  //    description: 'gives you examples to questions in chemistry'),
 ];
 
 // Mathematics
@@ -51,13 +51,13 @@ List<Mode> mathematicsModes = [
   Mode(
       mode: 'Auto',
       description: 'automatically figure out how to maths question'),
-  Mode(mode: 'Solve', description: 'Solves mathematical equations'),
-  Mode(mode: 'Simplify', description: 'Simplifies mathematical equations'),
-  Mode(mode: 'Prove', description: 'Prove mathematical Theorems'),
-  Mode(mode: 'Integrate', description: 'integerates Mathematical Equations'),
-  Mode(
-      mode: 'Examples',
-      description: 'gives you examples to questions in mathematics'),
+  //Mode(mode: 'Solve', description: 'Solves mathematical equations'),
+  //Mode(mode: 'Simplify', description: 'Simplifies mathematical equations'),
+  //Mode(mode: 'Prove', description: 'Prove mathematical Theorems'),
+  //Mode(mode: 'Integrate', description: 'integerates Mathematical Equations'),
+  //Mode(
+  //    mode: 'Examples',
+  //   description: 'gives you examples to questions in mathematics'),
 ];
 
 // Physics

@@ -15,6 +15,8 @@ import 'package:flutter/services.dart';
 import 'package:lensapp/bloc/main_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'main_screen.dart';
+import 'package:lensapp/services/camera_service.dart';
+
 //List<CameraDescription> cameras;
 
 void main() async {
@@ -70,6 +72,9 @@ class _CameraScreenState extends State<CameraScreen>
     }
     try {
       await controller.initialize();
+      //await Future.delayed(Duration(milliseconds: 500));
+      //await controller.stopImageStream();
+      await Future.delayed(Duration(milliseconds: 200));
       XFile file = await cameraController.takePicture();
       //setState(() {});
       return file.readAsBytes();
@@ -91,6 +96,8 @@ class _CameraScreenState extends State<CameraScreen>
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     final mainBloc = BlocProvider.of<MainBloc>(context);
     return Scaffold(
       backgroundColor: Colors.black,
@@ -105,9 +112,27 @@ class _CameraScreenState extends State<CameraScreen>
                 // height: double.maxFinite,
                 //width: double.maxFinite,
                 child: _isCameraInitialized
-                    ? AspectRatio(
-                        aspectRatio: 1 / controller.value.aspectRatio,
-                        child: controller.buildPreview(),
+                    ? Transform.scale(
+                        scale: 1.0,
+                        child: AspectRatio(
+                          aspectRatio: MediaQuery.of(context).size.aspectRatio,
+                          child: OverflowBox(
+                            alignment: Alignment.center,
+                            child: FittedBox(
+                              fit: BoxFit.fitHeight,
+                              child: Container(
+                                width: width,
+                                height: width * controller.value.aspectRatio,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: <Widget>[
+                                    CameraPreview(controller),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       )
                     : Container(),
               ),

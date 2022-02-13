@@ -3,10 +3,11 @@ import 'dart:io';
 import 'app_exceptions.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+import 'package:lensapp/constants/api_constants.dart';
 // Cleint for Account Creation
 
 class BaseClient {
-  static const int TIME_OUT_DURATION = 20;
+  static const int TIME_OUT_DURATION = ApiConstants.TIME_OUT;
   //POST
   Future<dynamic> post(String baseUrl, String api, dynamic payloadObj) async {
     var uri = Uri.parse(baseUrl + api);
@@ -63,6 +64,7 @@ class BaseClient {
 
   dynamic _processResponse(http.Response response) {
     switch (response.statusCode) {
+      case 201:
       case 200:
         var responseJson = convert.jsonDecode(response.body);
         return responseJson;
@@ -78,6 +80,7 @@ class BaseClient {
             response.request.url.toString());
       case 500:
       default:
+        print(response.statusCode);
         throw FetchDataException(
             'Error occured with code: ${response.statusCode}',
             response.request.url.toString());

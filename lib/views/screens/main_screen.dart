@@ -20,6 +20,7 @@ import 'payment_screen.dart';
 import 'logout_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'history_screen.dart';
+import 'package:lensapp/services/camera_service.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -45,28 +46,42 @@ class _MainScreenState extends State<MainScreen> {
   List<String> HeaderText = ['Subject', 'History', 'Profile'];
   GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
   List<Widget> pages;
-  Future storeDetails({String phonenumber, deviceId}) async {
+  String phoneNumber;
+  String username;
+  String email;
+  String deviceId;
+  Future getDetails() async {
     final pref = await SharedPreferences.getInstance();
-    pref.setString('phoneNumber', phonenumber);
-    pref.setString('deviceId', deviceId);
+    setState(() {
+      phoneNumber = pref.getString('phoneNumber');
+      username = pref.getString('username');
+      email = pref.getString('email');
+      deviceId = pref.getString('deviceId');
+    });
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    pages = [
-      SubjectMenu(),
-      HistoryMenu(),
-      ProfileMenu(
-        phoneNumber: widget.phoneNumber,
-      )
-    ];
-    //storeDetails(phonenumber: widget.phoneNumber, deviceId: widget.deviceId);
+    getDetails().then((value) {});
+    print('THE PHONE NUMBER IS ${phoneNumber}');
   }
 
   @override
   Widget build(BuildContext context) {
+    pages = [
+      SubjectMenu(),
+      HistoryMenu(),
+      ProfileMenu(
+        phoneNumber: phoneNumber,
+        username: username,
+        email: email,
+        onPressed: () {
+          showInSnackBar('Phone number cannot be edited');
+        },
+      )
+    ];
     final mainBloc = BlocProvider.of<MainBloc>(context);
     return Scaffold(
       drawer: Drawer(
@@ -163,7 +178,7 @@ class _MainScreenState extends State<MainScreen> {
                                     value: BlocProvider.of<MainBloc>(context),
                                     child: LogoutScreen(
                                       phoneNumber: widget.phoneNumber,
-                                      deviceId: widget.deviceId,
+                                      deviceId: deviceId,
                                     ));
                               })).then((value) {
                                 // Reset the state here
@@ -390,6 +405,11 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+
+  void showInSnackBar(String message) {
+    // ignore: deprecated_member_use
+    _scaffoldState.currentState?.showSnackBar(SnackBar(content: Text(message)));
+  }
 }
 
 // Menu of subject Categories
@@ -406,7 +426,6 @@ class SubjectMenu extends StatelessWidget {
     return StaggeredGridView.countBuilder(
       // addRepaintBoundaries: false,
       // shrinkWrap: false,
-
       padding: EdgeInsets.all(0),
       crossAxisCount: 2,
       itemCount: 4,
@@ -429,7 +448,9 @@ class SubjectMenu extends StatelessWidget {
                   module: Module.values[index],
                 ),
               );
-            }));
+            })).then((value) {
+              subBloc.add(GoToStateEvent(inputState: HomeState()));
+            });
           },
           child: SubjectTile(
             icon: subjectModels[index].icon,
@@ -450,7 +471,12 @@ class SubjectMenu extends StatelessWidget {
 // Profile Menu
 class ProfileMenu extends StatelessWidget {
   final String phoneNumber;
-  const ProfileMenu({Key key, this.phoneNumber}) : super(key: key);
+  final String username;
+  final String email;
+  final Function onPressed;
+  ProfileMenu(
+      {Key key, this.phoneNumber, this.email, this.username, this.onPressed})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -482,16 +508,18 @@ class ProfileMenu extends StatelessWidget {
                   'Email:   ',
                   style: TextStyle(fontSize: 16),
                 ),
-                Text('msughtera37@gmail.com'),
+                Text(email),
               ],
             ),
             IconButton(
                 onPressed: () {
+                  subBloc.add(GoToEdit());
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
                     return BlocProvider.value(
                         value: BlocProvider.of<MainBloc>(context),
                         child: EditScreen(
                           fieldIndex: EditMode.email.index,
+                          phoneNumber: phoneNumber,
                         ));
                   })).then((value) {
                     // Reset the state here
@@ -503,6 +531,37 @@ class ProfileMenu extends StatelessWidget {
         ),
         SizedBox(
           height: 1.0.h,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Username:   ',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(username),
+              ],
+            ),
+            IconButton(
+                onPressed: () {
+                  subBloc.add(GoToEdit());
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return BlocProvider.value(
+                        value: BlocProvider.of<MainBloc>(context),
+                        child: EditScreen(
+                          fieldIndex: EditMode.username.index,
+                          phoneNumber: phoneNumber,
+                        ));
+                  })).then((value) {
+                    // Reset the state here
+                    subBloc.add(ResetEvent(inputState: HomeState()));
+                  });
+                },
+                icon: Icon(Icons.edit))
+          ],
         ),
         SizedBox(
           height: 1.0.h,
@@ -522,16 +581,8 @@ class ProfileMenu extends StatelessWidget {
             ),
             IconButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return BlocProvider.value(
-                        value: BlocProvider.of<MainBloc>(context),
-                        child: EditScreen(
-                          fieldIndex: EditMode.phone.index,
-                        ));
-                  })).then((value) {
-                    // Reset the state here
-                    subBloc.add(ResetEvent(inputState: HomeState()));
-                  });
+                  //subBloc.add(GoToEdit());
+                  onPressed();
                 },
                 icon: Icon(Icons.edit))
           ],
@@ -570,7 +621,7 @@ class HistoryMenu extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text('200 queries'),
+                    Text('saved'),
                     subjectModels[itemIndex].icon,
                     Text('${title}')
                   ],

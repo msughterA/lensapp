@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '/utils/app_themes.dart';
 import 'card_screen.dart';
+import 'plans_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -80,12 +81,16 @@ class PaymentScreen extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     // Move to th appropriate screen
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return PlanScreen();
+                    }));
                   },
                   child: Container(
                     height: 5.h,
                     child: Center(
                       child: Text(
-                        'Check Balance',
+                        'See our Plans',
                         style: TextStyle(color: Pallete.secondary),
                       ),
                     ),

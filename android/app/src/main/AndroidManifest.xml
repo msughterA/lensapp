@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
    <application
         android:usesCleartextTraffic="true"
-        android:label="lensapp"
+        android:label="Studylens"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

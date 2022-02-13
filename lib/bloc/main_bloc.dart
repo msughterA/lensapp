@@ -4,6 +4,7 @@ import 'package:lensapp/services/app_exceptions.dart';
 import '/services/app_client.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lensapp/constants/api_constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //import 'package:lensapp/cubit/app_cubit_states.dart';
 
@@ -107,7 +108,17 @@ class EditEvent extends MainEvent {
   final String email;
   final String username;
   final String phoneNumber;
-  EditEvent({this.email, this.username, this.phoneNumber});
+  final String newPhoneNumber;
+  EditEvent({this.email, this.username, this.phoneNumber, this.newPhoneNumber});
+  @override
+  List<Object> get props => [email, username, phoneNumber, newPhoneNumber];
+}
+
+class GoToEdit extends MainEvent {
+  final String email;
+  final String username;
+  final String phoneNumber;
+  GoToEdit({this.email, this.username, this.phoneNumber});
   @override
   List<Object> get props => [email, username, phoneNumber];
 }
@@ -302,6 +313,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         emit: emit,
         phoneNumber: event.phoneNumber,
         email: event.email,
+        newPhoneNumber: event.newPhoneNumber,
         username: event.username));
     on<ResetEvent>((event, emit) => emit(event.inputState));
     on<DisplayErrorEvent>((event, emit) => displayError(emit, HomeState()));
@@ -329,6 +341,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         (event, emit) => answerChemistry(img: event.img, mode: event.mode));
     on<ExampleEvent>(
         (event, emit) => example(img: event.img, mode: event.mode));
+    on<GoToEdit>((event, emit) => emit(EditState()));
   }
 
   @override
@@ -408,21 +421,49 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   Future<void> editData(
-      {Emitter<MainState> emit, username, email, phoneNumber}) async {
+      {Emitter<MainState> emit,
+      username,
+      email,
+      phoneNumber,
+      newPhoneNumber}) async {
     emit(EditLoadingState());
+
     var request = {
       'username': username,
       'phone_number': phoneNumber,
-      'email': email
+      'email': email,
+      'new_phone_number': newPhoneNumber
     };
+
+    if (username != null) {
+      request.removeWhere((key, value) => key == "email");
+      request.removeWhere((key, value) => key == "new_phone_number");
+      //request['phone_number'] = phoneNumber;
+    } else if (newPhoneNumber != null) {
+      request.removeWhere((key, value) => key == "email");
+      request.removeWhere((key, value) => key == "username");
+    } else if (email != null) {
+      request.removeWhere((key, value) => key == "username");
+      request.removeWhere((key, value) => key == "new_phone_number");
+    }
+    print(request);
     var response = await BaseClient()
-        .post(ApiConstants.BASE_URL, ApiConstants.CREATE_ACCOUNT, request)
+        .put(ApiConstants.BASE_URL, ApiConstants.CREATE_ACCOUNT, request)
         .catchError((error) {
-      handleError(ErrorType.signUpError, error);
+      handleError(ErrorType.editError, error);
     });
-    return response;
-    // the function would emit an error state in the case of an error
-    //emit(EditError());
+
+    if (response != null) {
+      final pref = await SharedPreferences.getInstance();
+      if (username != null) {
+        pref.setString('username', username);
+      } else if (newPhoneNumber != null) {
+        pref.setString('phoneNumber', newPhoneNumber);
+      } else if (email != null) {
+        pref.setString('email', email);
+      }
+      emit(EditedState());
+    }
   }
 
   displayError(Emitter<MainState> emit, MainState displayState) async {
@@ -489,7 +530,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         phoneNumber: phoneNumber,
         deviceId: deviceId);
     if (response != null) {
-      print('response is not null');
+      final pref = await SharedPreferences.getInstance();
+      pref.setString('username', response['username']);
+      pref.setString('email', response['email']);
       add(GoToStateEvent(inputState: HomeState()));
     }
   }

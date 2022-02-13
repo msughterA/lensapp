@@ -35,6 +35,8 @@ class VerifyScreen extends StatelessWidget {
     final pref = await SharedPreferences.getInstance();
     pref.setString('phoneNumber', phonenumber);
     pref.setString('deviceId', deviceId);
+    pref.setString('username', username);
+    pref.setString('email', email);
   }
 
   @override

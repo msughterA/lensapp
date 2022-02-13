@@ -138,7 +138,8 @@ class _CropScreenState extends State<CropScreen> {
                         mainBloc.add(SummarizeEvent(
                             img: _img,
                             mode: widget.modes[_selectedModeIndex].mode));
-                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) {
                           return BlocProvider.value(
                             value: BlocProvider.of<MainBloc>(context),
                             child: SummarizerScreen(),
@@ -148,7 +149,8 @@ class _CropScreenState extends State<CropScreen> {
                         mainBloc.add(AnswerChemistryEvent(
                             img: _img,
                             mode: widget.modes[_selectedModeIndex].mode));
-                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) {
                           return BlocProvider.value(
                             value: BlocProvider.of<MainBloc>(context),
                             child: ChemistryAnswer(),
@@ -158,7 +160,8 @@ class _CropScreenState extends State<CropScreen> {
                         mainBloc.add(ExampleEvent(
                             img: _img,
                             mode: widget.modes[_selectedModeIndex].mode));
-                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) {
                           return BlocProvider.value(
                             value: BlocProvider.of<MainBloc>(context),
                             child: ExampleScreen(),
