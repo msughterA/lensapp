@@ -128,7 +128,8 @@ class _CropScreenState extends State<CropScreen> {
                         mainBloc.add(CalculateEvent(
                             img: _img,
                             mode: widget.modes[_selectedModeIndex].mode));
-                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) {
                           return BlocProvider.value(
                             value: BlocProvider.of<MainBloc>(context),
                             child: AnswerScreen(),

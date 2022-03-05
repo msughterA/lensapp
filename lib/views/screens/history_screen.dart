@@ -9,6 +9,7 @@ import 'package:lensapp/bloc/main_bloc.dart';
 import 'package:lensapp/services/storage.dart';
 import 'main_screen.dart' as mn;
 
+// If \( \frac{d y}{d x}=2 x-3 \) and \( y=3 \) when \( x=0 \), find \( y \) in terms of \( x \).
 class HistoryScreen extends StatefulWidget {
   final module;
   HistoryScreen({Key key, this.module}) : super(key: key);
@@ -32,9 +33,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     switch (widget.module) {
       case mn.Module.chemistry:
         history = await DatabaseHelper.instance.queryQA('Chemistry');
+        print('THE ANSWER IS BELOW');
+        print(history);
         break;
       case mn.Module.mathematics:
         history = await DatabaseHelper.instance.queryQA('Mathematics');
+        print('THE ANSWER IS BELOW');
+        print(history);
         break;
       case mn.Module.summarizer:
         history = await DatabaseHelper.instance.querySummary();
@@ -84,38 +89,31 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   history != null
                       ? Expanded(
                           child: Container(
-                              child: PageView.builder(
-                                  itemCount: history.length,
-                                  itemBuilder: (context, index) {
-                                    return history.isEmpty
-                                        ? Container(
-                                            height: 10.h,
-                                            width: 100.w,
-                                            child: Center(
-                                              child: Text('No History yet'),
-                                            ),
-                                          )
-                                        : HistoryTile(
-                                            question: widget.module !=
-                                                    mn.Module.summarizer
-                                                ? history[index]['question']
-                                                : null,
-                                            answer: widget.module !=
-                                                    mn.Module.summarizer
-                                                ? history[index]['answer']
-                                                : null,
-                                            summary: widget.module ==
-                                                    mn.Module.summarizer
-                                                ? history[index]['summary']
-                                                : null,
-                                          );
-                                  })))
-                      : Container(
-                          height: 10.h,
-                          width: 100.w,
-                          child: Center(
-                            child: Text('No History yet'),
-                          ),
+                              child: history.isEmpty == false
+                                  ? PageView.builder(
+                                      itemCount: history.length,
+                                      itemBuilder: (context, index) {
+                                        print(history[index]['answer']);
+                                        return HistoryTile(
+                                          question: widget.module !=
+                                                  mn.Module.summarizer
+                                              ? history[index]['question']
+                                              : null,
+                                          answer: widget.module !=
+                                                  mn.Module.summarizer
+                                              ? history[index]['answer']
+                                              : null,
+                                          summary: widget.module ==
+                                                  mn.Module.summarizer
+                                              ? history[index]['summary']
+                                              : null,
+                                        );
+                                      })
+                                  : Center(
+                                      child: Text('No history'),
+                                    )))
+                      : Center(
+                          child: Text('No History yet'),
                         ),
                 ],
               ),

@@ -5,7 +5,6 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 //import 'package:flutter_svg/';
 import '/utils/app_themes.dart';
 import 'package:sizer/sizer.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../widgets/main_screen_widgets.dart';
 import 'camera_screen.dart';
@@ -20,7 +19,6 @@ import 'payment_screen.dart';
 import 'logout_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'history_screen.dart';
-import 'package:lensapp/services/camera_service.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -172,19 +170,17 @@ class _MainScreenState extends State<MainScreen> {
                               // Move to the logout screen
                               mainBloc.add(
                                   GoToStateEvent(inputState: LogOutState()));
-                              Navigator.push(context,
+                              Navigator.pushReplacement(context,
                                   MaterialPageRoute(builder: (_) {
-                                return BlocProvider.value(
-                                    value: BlocProvider.of<MainBloc>(context),
+                                return BlocProvider(
+                                    //value: BlocProvider.of<MainBloc>(context),
+                                    create: (context) =>
+                                        MainBloc(LogOutState()),
                                     child: LogoutScreen(
                                       phoneNumber: widget.phoneNumber,
                                       deviceId: deviceId,
                                     ));
-                              })).then((value) {
-                                // Reset the state here
-                                mainBloc
-                                    .add(ResetEvent(inputState: HomeState()));
-                              });
+                              }));
                             },
                             child: Container(
                               height: 3.h,

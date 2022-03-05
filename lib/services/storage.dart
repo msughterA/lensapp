@@ -161,6 +161,7 @@ create table $_sumTable (
     List hist = [];
     history.forEach((element) {
       //var newElement = json.decode(element);
+      print(element);
       Map myMap = {
         'question': json.decode(element['question']),
         'answer': json.decode(element['answer'])

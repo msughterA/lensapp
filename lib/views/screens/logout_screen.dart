@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:lensapp/bloc/main_bloc.dart';
+import 'package:lensapp/views/screens/main_screen.dart';
 import 'package:sizer/sizer.dart';
 import '/utils/app_themes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -96,7 +97,14 @@ class LogoutScreen extends StatelessWidget {
                               child: InkWell(
                                 onTap: () {
                                   // Move to th appropriate screen
-                                  Navigator.of(context).pop();
+                                  Navigator.pushReplacement(context,
+                                      MaterialPageRoute(builder: (_) {
+                                    return BlocProvider(
+                                      create: (context) =>
+                                          MainBloc(HomeState()),
+                                      child: MainScreen(),
+                                    );
+                                  }));
                                 },
                                 child: Container(
                                   height: 6.h,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '/utils/app_themes.dart';
-import 'package:catex/catex.dart';
 import 'package:flutter_tex/flutter_tex.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -135,14 +134,25 @@ class Pod extends StatelessWidget {
                   ),
                 ),
               ]),
-              loadingWidgetBuilder: (context) => Center(
-                    child: CircularProgressIndicator(),
-                  )),
+              loadingWidgetBuilder: (context) => Center(child: PodSkeleton())),
         );
         break;
       default:
       //return Container();
     }
+  }
+}
+
+class PodSkeleton extends StatelessWidget {
+  const PodSkeleton({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      decoration: BoxDecoration(
+          color: Pallete.backround, borderRadius: BorderRadius.circular(10)),
+    );
   }
 }
 

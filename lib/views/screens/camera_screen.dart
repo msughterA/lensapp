@@ -7,15 +7,11 @@ import 'dart:async';
 import 'package:sizer/sizer.dart';
 import '/utils/app_themes.dart';
 import '../widgets/camera_screen_widgets.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'camera_screen.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:lensapp/bloc/main_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'main_screen.dart';
-import 'package:lensapp/services/camera_service.dart';
 
 //List<CameraDescription> cameras;
 

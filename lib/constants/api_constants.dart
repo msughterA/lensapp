@@ -1,7 +1,7 @@
 class ApiConstants {
+  //static const BASE_URL = 'http://192.168.43.36:8000';
   static const BASE_URL = 'https://studylens.herokuapp.com';
   static const TIME_OUT = 300;
-
   // Account creation and Login
   static const CREATE_ACCOUNT = '/accounts/create';
   static const LOGIN = '/accounts/login';

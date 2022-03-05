@@ -92,6 +92,13 @@ class _AnswerScreenState extends State<AnswerScreen> {
                   BlocBuilder<MainBloc, MainState>(
                     builder: (context, state) {
                       if (state is Solution) {
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((timeStamp) {
+                          setState(() {
+                            question = state.question;
+                            answer = state.answer;
+                          });
+                        });
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -256,7 +263,7 @@ class _ChemistryAnswerState extends State<ChemistryAnswer> {
                               pods: state.question,
                             ),
                             SizedBox(
-                              height: 20.h,
+                              height: 1.h,
                             ),
                             Text(
                               'Answer',

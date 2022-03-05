@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class Pallete {
   static const Color backround = Color(0xFFF5F5F4);
