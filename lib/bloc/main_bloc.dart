@@ -54,6 +54,14 @@ class AnswerChemistryEvent extends MainEvent {
   List<Object> get props => [img, mode];
 }
 
+class AnswerGstEvent extends MainEvent {
+  final img;
+  final mode;
+  AnswerGstEvent({this.img, this.mode});
+  @override
+  List<Object> get props => [img, mode];
+}
+
 class CalculateEvent extends MainEvent {
   final img;
   final mode;
@@ -174,6 +182,16 @@ class AnsweredChemistry extends MainState {
   List<Object> get props => [question, answer];
 }
 
+class AnsweringGst extends MainState {}
+
+class GstAnswer extends MainState {
+  final List question;
+  final List answer;
+  GstAnswer({this.answer, this.question});
+  @override
+  List<Object> get props => [question, answer];
+}
+
 class Summary extends MainState {
   final List summary;
   Summary({this.summary});
@@ -185,21 +203,28 @@ class SummaryError extends MainState {
   final String message;
   SummaryError({this.message});
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [];
 }
 
 class ExampleError extends MainState {
   final String message;
   ExampleError({this.message});
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [];
 }
 
 class AnswerChemistryError extends MainState {
   final String message;
   AnswerChemistryError({this.message});
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [];
+}
+
+class GstAnswerError extends MainState {
+  final String message;
+  GstAnswerError({this.message});
+  @override
+  List<Object> get props => [];
 }
 
 class AnsweringChemistry extends MainState {}
@@ -335,12 +360,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         password: event.password,
         deviceId: event.deviceId,
         phoneNumber: event.phoneNumber));
-    on<SummarizeEvent>(
-        (event, emit) => summarize(img: event.img, mode: event.mode));
-    on<AnswerChemistryEvent>(
-        (event, emit) => answerChemistry(img: event.img, mode: event.mode));
+    on<SummarizeEvent>((event, emit) =>
+        summarize(emit: emit, img: event.img, mode: event.mode));
+    on<AnswerChemistryEvent>((event, emit) =>
+        answerChemistry(emit: emit, img: event.img, mode: event.mode));
+    on<AnswerGstEvent>((event, emit) =>
+        answerGst(emit: emit, img: event.img, mode: event.mode));
     on<ExampleEvent>(
-        (event, emit) => example(img: event.img, mode: event.mode));
+        (event, emit) => example(emit: emit, img: event.img, mode: event.mode));
     on<GoToEdit>((event, emit) => emit(EditState()));
   }
 
@@ -572,48 +599,76 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
   }
 
-  Future summarize({var img, String mode}) async {
+  Future summarize({Emitter emit, var img, String mode}) async {
     var request = {'image': img, 'mode': mode};
     add(GoToStateEvent(inputState: Summarizing()));
     var response = await BaseClient()
-        .post(ApiConstants.BASE_URL, ApiConstants.SUMMARIZER, request);
+        .post(ApiConstants.BASE_URL, ApiConstants.SUMMARIZER, request)
+        .catchError((error) {
+      handleError(ErrorType.summaryError, error);
+    });
     if (response != null) {
       var summary = response['summary'];
-      add(GoToStateEvent(inputState: Summary(summary: summary)));
+      emit(Summary(summary: summary));
     } else {
       print('A SERVER ERROR OCCURRED');
       handleError(ErrorType.summaryError, 'Server error');
     }
   }
 
-  Future example({var img, String mode}) async {
+  Future example({Emitter emit, var img, String mode}) async {
     var request = {'image': img, 'mode': mode};
     add(GoToStateEvent(inputState: ExampleLoading()));
     var response = await BaseClient()
-        .post(ApiConstants.BASE_URL, ApiConstants.EXAMPLES, request);
+        .post(ApiConstants.BASE_URL, ApiConstants.EXAMPLES, request)
+        .catchError((error) {
+      handleError(ErrorType.exampleError, error);
+    });
     if (response != null) {
       var examples = response['examples'];
       print(examples);
-      add(GoToStateEvent(inputState: Example(examples: examples)));
+      emit(Example(examples: examples));
     } else {
       print('A SERVER ERROR OCCURRED');
       handleError(ErrorType.exampleError, 'Server error');
     }
   }
 
-  Future answerChemistry({var img, String mode}) async {
+  Future answerChemistry({Emitter emit, var img, String mode}) async {
     var request = {'image': img, 'mode': mode};
     add(GoToStateEvent(inputState: AnsweringChemistry()));
     var response = await BaseClient()
-        .post(ApiConstants.BASE_URL, ApiConstants.CHEMISTRY, request);
+        .post(ApiConstants.BASE_URL, ApiConstants.CHEMISTRY, request)
+        .catchError((error) {
+      handleError(ErrorType.answerChemistryError, error);
+    });
     if (response != null) {
       var question = response['question'];
       var answer = response['answer'];
-      add(GoToStateEvent(
-          inputState: AnsweredChemistry(question: question, answer: answer)));
+      emit(AnsweredChemistry(question: question, answer: answer));
     } else {
       print('A SERVER ERROR OCCURRED');
       handleError(ErrorType.answerChemistryError, 'Server error');
+    }
+  }
+
+  Future answerGst({Emitter emit, var img, String mode}) async {
+    var request = {'image': img, 'mode': mode};
+    add(GoToStateEvent(inputState: AnsweringGst()));
+    var response = await BaseClient()
+        .post(ApiConstants.BASE_URL, ApiConstants.GST, request)
+        .catchError((error) {
+      print(error);
+      handleError(ErrorType.gstAnswerError, error);
+    });
+    if (response != null) {
+      var question = response['question'];
+      var answer = response['answer'];
+      emit(GstAnswer(question: question, answer: answer));
+    } else {
+      print(response);
+      print('A SERVER ERROR OCCURRED');
+      handleError(ErrorType.gstAnswerError, 'Server error');
     }
   }
 
@@ -667,6 +722,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       case ErrorType.answerChemistryError:
         add(GoToStateEvent(inputState: AnswerChemistryError(message: message)));
         break;
+      case ErrorType.gstAnswerError:
+        add(GoToStateEvent(inputState: GstAnswerError(message: message)));
+        break;
       case ErrorType.exampleError:
         add(GoToStateEvent(inputState: ExampleError(message: message)));
         break;
@@ -686,4 +744,5 @@ enum ErrorType {
   summaryError,
   answerChemistryError,
   exampleError,
+  gstAnswerError
 }

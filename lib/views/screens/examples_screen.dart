@@ -46,29 +46,6 @@ class _ExampleScreenState extends State<ExampleScreen> {
                             borderRadius: BorderRadius.all(Radius.circular(15)),
                             color: Pallete.backround),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          // Save the examples to the database
-                          saveToDatabase();
-                        },
-                        child: Container(
-                          child: Center(
-                            child: Text(
-                              _isSaved ? 'Saved' : 'Save',
-                              style: TextStyle(
-                                  color:
-                                      _isSaved ? Colors.white : Colors.black),
-                            ),
-                          ),
-                          height: 7.0.h,
-                          width: 18.0.w,
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15)),
-                              color:
-                                  _isSaved ? Colors.black : Pallete.backround),
-                        ),
-                      )
                     ],
                   ),
                   BlocBuilder<MainBloc, MainState>(
@@ -108,7 +85,10 @@ class _ExampleScreenState extends State<ExampleScreen> {
                         );
                       } else if (state is ExampleError) {
                         return Center(
-                          child: Text(state.message),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 90),
+                            child: Text(state.message),
+                          ),
                         );
                       }
                       return Container();

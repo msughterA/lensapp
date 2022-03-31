@@ -41,9 +41,15 @@ class _CameraScreenState extends State<CameraScreen>
   File _imageCamera;
   bool _isCameraInitialized = false;
   int _selectedModeIndex = 0;
+
+  // varialbles for focus
+  bool showFocusCircle = false;
+  double x = 0;
+  double y = 0;
   final ImagePicker _picker = ImagePicker();
   Future<void> _initializeController;
   LightMode lightMode = LightMode.auto;
+  FlashMode currentFlashMode;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
@@ -61,8 +67,8 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   Future<Uint8List> takePicture() async {
-    final CameraController cameraController = controller;
-    if (cameraController.value.isTakingPicture) {
+    //final CameraController cameraController = controller;
+    if (controller.value.isTakingPicture) {
       // A capture is already pending, do nothing.
       return null;
     }
@@ -70,8 +76,8 @@ class _CameraScreenState extends State<CameraScreen>
       await controller.initialize();
       //await Future.delayed(Duration(milliseconds: 500));
       //await controller.stopImageStream();
-      await Future.delayed(Duration(milliseconds: 200));
-      XFile file = await cameraController.takePicture();
+      //await Future.delayed(Duration(milliseconds: 200));
+      XFile file = await controller.takePicture();
       //setState(() {});
       return file.readAsBytes();
     } catch (e) {
@@ -102,234 +108,259 @@ class _CameraScreenState extends State<CameraScreen>
         return Container(
           height: double.maxFinite,
           width: double.maxFinite,
-          child: Stack(
-            children: [
-              Container(
-                // height: double.maxFinite,
-                //width: double.maxFinite,
-                child: _isCameraInitialized
-                    ? Transform.scale(
-                        scale: 1.0,
-                        child: AspectRatio(
-                          aspectRatio: MediaQuery.of(context).size.aspectRatio,
-                          child: OverflowBox(
-                            alignment: Alignment.center,
-                            child: FittedBox(
-                              fit: BoxFit.fitHeight,
-                              child: Container(
-                                width: width,
-                                height: width * controller.value.aspectRatio,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: <Widget>[
-                                    CameraPreview(controller),
-                                  ],
+          child: GestureDetector(
+            onTapUp: (details) {
+              _onTap(details);
+            },
+            child: Stack(
+              children: [
+                Container(
+                  // height: double.maxFinite,
+                  //width: double.maxFinite,
+                  child: _isCameraInitialized
+                      ? Transform.scale(
+                          scale: 1.0,
+                          child: AspectRatio(
+                            aspectRatio:
+                                MediaQuery.of(context).size.aspectRatio,
+                            child: OverflowBox(
+                              alignment: Alignment.center,
+                              child: FittedBox(
+                                fit: BoxFit.fitHeight,
+                                child: Container(
+                                  width: width,
+                                  height: width * controller.value.aspectRatio,
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: <Widget>[
+                                      CameraPreview(controller),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                    : Container(),
-              ),
-              Positioned(
-                right: 3.0.w,
-                top: 15.h,
-                child: Container(
-                  height: 40.h,
-                  width: 10.w,
-                  decoration: BoxDecoration(
-                      color: Pallete.secondary.withOpacity(0.7),
-                      borderRadius: BorderRadius.all(Radius.circular(5.h))),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.keyboard_outlined,
-                            color: Pallete.primary,
-                          )),
-                      IconButton(
-                          onPressed: () {
-                            controller.setFlashMode(FlashMode.auto);
-                            setState(() {
-                              lightMode = LightMode.auto;
-                            });
-                          },
-                          icon: Icon(
-                            Icons.flash_auto_outlined,
-                            color: lightMode == LightMode.auto
-                                ? widget.color
-                                : Pallete.primary,
-                          )),
-                      IconButton(
-                          onPressed: () {
-                            controller.setFlashMode(FlashMode.off);
-                            setState(() {
-                              lightMode = LightMode.off;
-                            });
-                          },
-                          icon: Icon(
-                            Icons.flash_off_outlined,
-                            color: lightMode == LightMode.off
-                                ? widget.color
-                                : Pallete.primary,
-                          )),
-                      IconButton(
-                          onPressed: () {
-                            controller.setFlashMode(FlashMode.always);
-                            setState(() {
-                              lightMode = LightMode.always;
-                            });
-                          },
-                          icon: Icon(
-                            Icons.flash_on_outlined,
-                            color: lightMode == LightMode.always
-                                ? widget.color
-                                : Pallete.primary,
-                          )),
-                      IconButton(
-                          onPressed: () {
-                            controller.setFlashMode(FlashMode.torch);
-                            setState(() {
-                              lightMode = LightMode.torch;
-                            });
-                          },
-                          icon: Icon(
-                            Icons.lightbulb_outline,
-                            color: lightMode == LightMode.torch
-                                ? widget.color
-                                : Pallete.primary,
-                          ))
-                    ],
-                  ),
+                        )
+                      : Container(),
                 ),
-              ),
-              Positioned(
-                left: 3.w,
-                right: 3.w,
-                bottom: 21.0.h,
-                child: Container(
-                  //width: 80.0.w,
-                  height: 7.0.h,
-                  child: Center(
-                    child: Text(widget.modes[_selectedModeIndex].description),
-                  ),
-                  decoration: BoxDecoration(
-                    color: widget.color,
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                  ),
-                ),
-              ),
-              // Positioned()
-              Positioned(
-                  left: 10,
-                  right: 10,
-                  bottom: 9.0.h,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          Uint8List imageUnit8List = await pickFromPhotos();
-                          if (imageUnit8List != null) {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (_) {
-                              return BlocProvider.value(
-                                value: BlocProvider.of<MainBloc>(context),
-                                child: CropScreen(
-                                  modes: widget.modes,
-                                  color: widget.color,
-                                  image: imageUnit8List,
-                                  selectedModeIndex: _selectedModeIndex,
-                                  module: widget.module,
-                                ),
-                              );
-                            }));
-                          } else {
-                            showInSnackBar('Picture access error');
-                          }
-                        },
-                        child: Container(
-                          height: 6.h,
-                          width: 6.h,
-                          child: Icon(Icons.image_outlined),
-                          decoration: BoxDecoration(
+                Positioned(
+                  right: 3.0.w,
+                  top: 15.h,
+                  child: Container(
+                    height: 40.h,
+                    width: 10.w,
+                    decoration: BoxDecoration(
+                        color: Pallete.secondary.withOpacity(0.7),
+                        borderRadius: BorderRadius.all(Radius.circular(5.h))),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.keyboard_outlined,
                               color: Pallete.primary,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(3.h))),
-                        ),
-                      ),
-                      // Camera shutter Button
-                      InkWell(
-                        onTap: () async {
-                          // take the picture
-                          Uint8List imageUnit8List = await takePicture();
-                          if (imageUnit8List != null) {
-                            Navigator.pushReplacement(context,
-                                MaterialPageRoute(builder: (_) {
-                              return BlocProvider.value(
+                            )),
+                        IconButton(
+                            onPressed: () async {
+                              controller.setFlashMode(FlashMode.auto);
+                              setState(() {
+                                lightMode = LightMode.auto;
+                                currentFlashMode = FlashMode.auto;
+                              });
+                            },
+                            icon: Icon(
+                              Icons.flash_auto_outlined,
+                              color: currentFlashMode == FlashMode.auto
+                                  ? widget.color
+                                  : Pallete.primary,
+                            )),
+                        IconButton(
+                            onPressed: () async {
+                              setState(() {
+                                lightMode = LightMode.off;
+                                currentFlashMode = FlashMode.off;
+                              });
+                              await controller.setFlashMode(FlashMode.off);
+                            },
+                            icon: Icon(
+                              Icons.flash_off_outlined,
+                              color: currentFlashMode == FlashMode.off
+                                  ? widget.color
+                                  : Pallete.primary,
+                            )),
+                        IconButton(
+                            onPressed: () async {
+                              // controller.setFlashMode(FlashMode.always);
+                              setState(() {
+                                lightMode = LightMode.always;
+                                currentFlashMode = FlashMode.always;
+                              });
+                              await controller.setFlashMode(FlashMode.always);
+                            },
+                            icon: Icon(
+                              Icons.flash_on_outlined,
+                              color: currentFlashMode == FlashMode.always
+                                  ? widget.color
+                                  : Pallete.primary,
+                            )),
+                        IconButton(
+                            onPressed: () async {
+                              //controller.setFlashMode(FlashMode.torch);
+                              setState(() {
+                                lightMode = LightMode.torch;
+                                currentFlashMode=FlashMode.torch;
+                              });
+                              await controller.setFlashMode(FlashMode.torch);
+                            },
+                            icon: Icon(
+                              Icons.lightbulb_outline,
+                              color: currentFlashMode == FlashMode.torch
+                                  ? widget.color
+                                  : Pallete.primary,
+                            ))
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 3.w,
+                  right: 3.w,
+                  bottom: 21.0.h,
+                  child: Container(
+                    //width: 80.0.w,
+                    height: 7.0.h,
+                    child: Center(
+                      child: Text(widget.modes[_selectedModeIndex].description),
+                    ),
+                    decoration: BoxDecoration(
+                      color: widget.color,
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                  ),
+                ),
+                // Positioned()
+                Positioned(
+                    left: 10,
+                    right: 10,
+                    bottom: 9.0.h,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            Uint8List imageUnit8List = await pickFromPhotos();
+                            if (imageUnit8List != null) {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) {
+                                return BlocProvider.value(
                                   value: BlocProvider.of<MainBloc>(context),
                                   child: CropScreen(
-                                    image: imageUnit8List,
-                                    color: widget.color,
                                     modes: widget.modes,
+                                    color: widget.color,
+                                    image: imageUnit8List,
                                     selectedModeIndex: _selectedModeIndex,
                                     module: widget.module,
-                                  ));
-                            }));
-                          } else {
-                            showInSnackBar('Camera error');
-                          }
-                        },
-                        child: Container(
-                          height: 10.h,
-                          width: 10.h,
-                          decoration: BoxDecoration(
-                              color: Pallete.primary,
-                              borderRadius: BorderRadius.circular(5.h),
-                              border: Border.all(color: Pallete.accent)),
+                                  ),
+                                );
+                              }));
+                            } else {
+                              showInSnackBar('Picture access error');
+                            }
+                          },
+                          child: Container(
+                            height: 6.h,
+                            width: 6.h,
+                            child: Icon(Icons.image_outlined),
+                            decoration: BoxDecoration(
+                                color: Pallete.primary,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(3.h))),
+                          ),
                         ),
-                      ),
-                      Container(
-                        height: 5.h,
-                        width: 5.h,
-                        decoration: BoxDecoration(color: Colors.transparent),
-                      ),
-                    ],
-                  )),
+                        // Camera shutter Button
+                        InkWell(
+                          onTap: () async {
+                            // take the picture
+                            Uint8List imageUnit8List = await takePicture();
+                            if (imageUnit8List != null) {
+                              Navigator.pushReplacement(context,
+                                  MaterialPageRoute(builder: (_) {
+                                return BlocProvider.value(
+                                    value: BlocProvider.of<MainBloc>(context),
+                                    child: CropScreen(
+                                      image: imageUnit8List,
+                                      color: widget.color,
+                                      modes: widget.modes,
+                                      selectedModeIndex: _selectedModeIndex,
+                                      module: widget.module,
+                                    ));
+                              }));
+                            } else {
+                              showInSnackBar('Camera error');
+                            }
+                          },
+                          child: Container(
+                            height: 10.h,
+                            width: 10.h,
+                            decoration: BoxDecoration(
+                                color: Pallete.primary,
+                                borderRadius: BorderRadius.circular(5.h),
+                                border: Border.all(color: Pallete.accent)),
+                          ),
+                        ),
+                        Container(
+                          height: 5.h,
+                          width: 5.h,
+                          decoration: BoxDecoration(color: Colors.transparent),
+                        ),
+                      ],
+                    )),
 
-              Positioned(
-                  left: 1.0,
-                  right: 1.0,
-                  bottom: 1.0.h,
-                  child: Container(
-                    height: 5.h,
-                    width: double.maxFinite,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                          //scrollDirection: Axis.vertical,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: List.generate(widget.modes.length, (index) {
-                            return CameraMode(
-                              color: widget.color,
-                              onpressed: () {
-                                setState(() {
-                                  _selectedModeIndex = index;
-                                });
-                              },
-                              label: widget.modes[index].mode,
-                              fillisColor:
-                                  _selectedModeIndex == index ? true : false,
-                              labelisWhite:
-                                  _selectedModeIndex == index ? true : false,
-                            );
-                          })),
-                    ),
-                  ))
-            ],
+                Positioned(
+                    left: 1.0,
+                    right: 1.0,
+                    bottom: 1.0.h,
+                    child: Container(
+                      height: 5.h,
+                      width: double.maxFinite,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                            //scrollDirection: Axis.vertical,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children:
+                                List.generate(widget.modes.length, (index) {
+                              return CameraMode(
+                                color: widget.color,
+                                onpressed: () {
+                                  setState(() {
+                                    _selectedModeIndex = index;
+                                  });
+                                },
+                                label: widget.modes[index].mode,
+                                fillisColor:
+                                    _selectedModeIndex == index ? true : false,
+                                labelisWhite:
+                                    _selectedModeIndex == index ? true : false,
+                              );
+                            })),
+                      ),
+                    )),
+                if (showFocusCircle)
+                  Positioned(
+                      top: y - 20,
+                      left: x - 20,
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: Colors.white, width: 1.5)),
+                      ))
+              ],
+            ),
           ),
         );
       }),
@@ -363,6 +394,7 @@ class _CameraScreenState extends State<CameraScreen>
     // Initialize controller
     try {
       await cameraController?.initialize();
+      currentFlashMode = cameraController.value.flashMode;
     } on CameraException catch (e) {
       print('Error initializing camera: $e');
     }
@@ -395,6 +427,37 @@ class _CameraScreenState extends State<CameraScreen>
       cameraController?.dispose();
     } else if (state == AppLifecycleState.resumed) {
       onNewCameraSelected(cameraController.description);
+    }
+  }
+
+  Future<void> _onTap(TapUpDetails details) async {
+    if (controller.value.isInitialized) {
+      showFocusCircle = true;
+      x = details.localPosition.dx;
+      y = details.localPosition.dy;
+
+      double fullWidth = MediaQuery.of(context).size.width;
+      double cameraHeight = fullWidth * controller.value.aspectRatio;
+
+      double xp = x / fullWidth;
+      double yp = y / cameraHeight;
+
+      Offset point = Offset(xp, yp);
+      print("point : $point");
+
+      // Manually focus
+      await controller.setFocusPoint(point);
+
+      // Manually set light exposure
+      //controller.setExposurePoint(point);
+
+      setState(() {
+        Future.delayed(const Duration(seconds: 2)).whenComplete(() {
+          setState(() {
+            showFocusCircle = false;
+          });
+        });
+      });
     }
   }
 }

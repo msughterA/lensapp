@@ -19,6 +19,7 @@ import 'payment_screen.dart';
 import 'logout_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'history_screen.dart';
+import 'package:upgrader/upgrader.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -207,25 +208,39 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       key: _scaffoldState,
-      body: Sizer(
-        builder: (context, orientation, deviceType) {
-          return Container(
-            child: Padding(
-              padding: EdgeInsets.only(top: 6.h, left: 5.w, right: 5.w),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 0.w),
-                        child: GestureDetector(
-                          onTap: () {
-                            _scaffoldState.currentState.openDrawer();
-                          },
+      body: UpgradeAlert(
+        child: Sizer(
+          builder: (context, orientation, deviceType) {
+            return Container(
+              child: Padding(
+                padding: EdgeInsets.only(top: 6.h, left: 5.w, right: 5.w),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 0.w),
+                          child: GestureDetector(
+                            onTap: () {
+                              _scaffoldState.currentState.openDrawer();
+                            },
+                            child: Container(
+                              child: Icon(Icons.menu_outlined),
+                              height: 7.0.h,
+                              width: 15.0.w,
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15)),
+                                  color: Theme.of(context).backgroundColor),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(right: 0.w),
                           child: Container(
-                            child: Icon(Icons.menu_outlined),
+                            child: Icon(Icons.search_outlined),
                             height: 7.0.h,
                             width: 15.0.w,
                             decoration: BoxDecoration(
@@ -233,171 +248,159 @@ class _MainScreenState extends State<MainScreen> {
                                     BorderRadius.all(Radius.circular(15)),
                                 color: Theme.of(context).backgroundColor),
                           ),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5.h,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          HeaderText[currentPageValue],
+                          style: TextStyle(
+                              fontSize: 25.sp, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 0.w),
-                        child: Container(
-                          child: Icon(Icons.search_outlined),
-                          height: 7.0.h,
-                          width: 15.0.w,
-                          decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15)),
-                              color: Theme.of(context).backgroundColor),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Menu',
+                          style: TextStyle(fontSize: 15.sp),
                         ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        HeaderText[currentPageValue],
-                        style: TextStyle(
-                            fontSize: 25.sp, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        'Menu',
-                        style: TextStyle(fontSize: 15.sp),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 4.0.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          pageController.animateToPage(0,
-                              duration: Duration(milliseconds: 250),
-                              curve: Curves.easeIn);
-                          //setState(() {});
-                        },
-                        child: CategoryTile(
-                          icon: Icon(
-                            Icons.book_outlined,
+                      ],
+                    ),
+                    SizedBox(
+                      height: 4.0.h,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            pageController.animateToPage(0,
+                                duration: Duration(milliseconds: 250),
+                                curve: Curves.easeIn);
+                            //setState(() {});
+                          },
+                          child: CategoryTile(
+                            icon: Icon(
+                              Icons.book_outlined,
+                              color: currentPageValue == 0
+                                  ? Pallete.primaryVariant
+                                  : Pallete.secondary,
+                              size: 5.0.h,
+                            ),
+                            spacing: 1.0.h,
+                            title: 'Subjects',
+                            height: currentPageValue == 0 ? 15.0.h : 12.0.h,
+                            width: 25.0.w,
+                            radius: 4.0.h,
                             color: currentPageValue == 0
+                                ? Theme.of(context).accentColor
+                                : Theme.of(context).backgroundColor,
+                            textColor: currentPageValue == 0
                                 ? Pallete.primaryVariant
                                 : Pallete.secondary,
-                            size: 5.0.h,
                           ),
-                          spacing: 1.0.h,
-                          title: 'Subjects',
-                          height: currentPageValue == 0 ? 15.0.h : 12.0.h,
-                          width: 25.0.w,
-                          radius: 4.0.h,
-                          color: currentPageValue == 0
-                              ? Theme.of(context).accentColor
-                              : Theme.of(context).backgroundColor,
-                          textColor: currentPageValue == 0
-                              ? Pallete.primaryVariant
-                              : Pallete.secondary,
                         ),
-                      ),
-                      SizedBox(
-                        width: 5.0.w,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          pageController.animateToPage(1,
-                              duration: Duration(milliseconds: 250),
-                              curve: Curves.easeIn);
-                          //setState(() {});
-                        },
-                        child: CategoryTile(
-                          icon: Icon(
-                            Icons.history_outlined,
+                        SizedBox(
+                          width: 5.0.w,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            pageController.animateToPage(1,
+                                duration: Duration(milliseconds: 250),
+                                curve: Curves.easeIn);
+                            //setState(() {});
+                          },
+                          child: CategoryTile(
+                            icon: Icon(
+                              Icons.history_outlined,
+                              color: currentPageValue == 1
+                                  ? Pallete.primaryVariant
+                                  : Pallete.secondary,
+                              size: 5.0.h,
+                            ),
+                            spacing: 1.0.h,
+                            title: 'History',
+                            height: currentPageValue == 1 ? 15.0.h : 12.0.h,
+                            width: 25.0.w,
+                            radius: 4.0.h,
                             color: currentPageValue == 1
+                                ? Theme.of(context).accentColor
+                                : Theme.of(context).backgroundColor,
+                            textColor: currentPageValue == 1
                                 ? Pallete.primaryVariant
                                 : Pallete.secondary,
-                            size: 5.0.h,
                           ),
-                          spacing: 1.0.h,
-                          title: 'History',
-                          height: currentPageValue == 1 ? 15.0.h : 12.0.h,
-                          width: 25.0.w,
-                          radius: 4.0.h,
-                          color: currentPageValue == 1
-                              ? Theme.of(context).accentColor
-                              : Theme.of(context).backgroundColor,
-                          textColor: currentPageValue == 1
-                              ? Pallete.primaryVariant
-                              : Pallete.secondary,
                         ),
-                      ),
-                      SizedBox(
-                        width: 5.0.w,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          pageController.animateToPage(2,
-                              duration: Duration(milliseconds: 250),
-                              curve: Curves.easeIn);
-                          //setState(() {});
-                        },
-                        child: CategoryTile(
-                          icon: Icon(
-                            Icons.person_outlined,
+                        SizedBox(
+                          width: 5.0.w,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            pageController.animateToPage(2,
+                                duration: Duration(milliseconds: 250),
+                                curve: Curves.easeIn);
+                            //setState(() {});
+                          },
+                          child: CategoryTile(
+                            icon: Icon(
+                              Icons.person_outlined,
+                              color: currentPageValue == 2
+                                  ? Pallete.primaryVariant
+                                  : Pallete.secondary,
+                              size: 5.0.h,
+                            ),
+                            spacing: 1.0.h,
+                            title: 'Profile',
+                            height: currentPageValue == 2 ? 15.0.h : 12.0.h,
+                            width: 25.0.w,
+                            radius: 4.0.h,
                             color: currentPageValue == 2
+                                ? Theme.of(context).accentColor
+                                : Theme.of(context).backgroundColor,
+                            textColor: currentPageValue == 2
                                 ? Pallete.primaryVariant
                                 : Pallete.secondary,
-                            size: 5.0.h,
                           ),
-                          spacing: 1.0.h,
-                          title: 'Profile',
-                          height: currentPageValue == 2 ? 15.0.h : 12.0.h,
-                          width: 25.0.w,
-                          radius: 4.0.h,
-                          color: currentPageValue == 2
-                              ? Theme.of(context).accentColor
-                              : Theme.of(context).backgroundColor,
-                          textColor: currentPageValue == 2
-                              ? Pallete.primaryVariant
-                              : Pallete.secondary,
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 5.0.h,
-                  ),
-                  //ProfileMenu()
-                  //SubjectMenu()
-                  //HistoryMenu()
-                  pages != null
-                      ? Expanded(
-                          child: PageView.builder(
-                              onPageChanged: (value) {
-                                setState(() {
-                                  currentPageValue = value;
-                                });
-                              },
-                              itemCount: pages.length,
-                              controller: pageController,
-                              itemBuilder: (context, index) {
-                                return pages[index];
-                              }))
-                      : Expanded(
-                          child: Container(
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ))
-                ],
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5.0.h,
+                    ),
+                    //ProfileMenu()
+                    //SubjectMenu()
+                    //HistoryMenu()
+                    pages != null
+                        ? Expanded(
+                            child: PageView.builder(
+                                onPageChanged: (value) {
+                                  setState(() {
+                                    currentPageValue = value;
+                                  });
+                                },
+                                itemCount: pages.length,
+                                controller: pageController,
+                                itemBuilder: (context, index) {
+                                  return pages[index];
+                                }))
+                        : Expanded(
+                            child: Container(
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ))
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -424,7 +427,7 @@ class SubjectMenu extends StatelessWidget {
       // shrinkWrap: false,
       padding: EdgeInsets.all(0),
       crossAxisCount: 2,
-      itemCount: 4,
+      itemCount: 5,
       crossAxisSpacing: 4.0.w,
       mainAxisSpacing: 2.0.h,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),
@@ -647,4 +650,4 @@ class HistoryMenu extends StatelessWidget {
 }
 
 enum EditMode { email, username, phone }
-enum Module { mathematics, summarizer, examples, chemistry }
+enum Module { mathematics, summarizer, examples, gst, chemistry }

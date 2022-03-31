@@ -22,4 +22,7 @@ class ApiConstants {
 
   // Examples
   static const EXAMPLES = '/examples';
+
+  // Gst
+  static const GST = '/gst/gst';
 }

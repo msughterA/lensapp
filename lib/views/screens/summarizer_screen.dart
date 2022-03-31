@@ -33,7 +33,10 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
   Widget build(BuildContext context) {
     //final mainBloc = BlocProvider.of<MainBloc>(context);
     //final mainBloc = BlocProvider.of<MainBloc>(context);
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Pallete.primary,
       body: Sizer(
         builder: (context, orientation, deviceType) {
           return SingleChildScrollView(
@@ -117,7 +120,10 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
                       );
                     } else if (state is SummaryError) {
                       return Center(
-                        child: Text(state.message),
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 90),
+                          child: Text(state.message),
+                        ),
                       );
                     } else {
                       return Container();
@@ -132,12 +138,22 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
     ));
   }
 
+  void showInSnackBar(String message) {
+    // ignore: deprecated_member_use
+    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future saveToDatabase() async {
-    String sjsn = json.encode(_summary).toString();
-    final summaryModel = SummaryModel(summary: sjsn);
-    setState(() {
-      _isSaved = true;
-    });
-    await DatabaseHelper.instance.insertSummary(summaryModel.toMap());
+    if (_summary != null) {
+      String sjsn = json.encode(_summary).toString();
+      final summaryModel = SummaryModel(summary: sjsn);
+      setState(() {
+        _isSaved = true;
+      });
+      await DatabaseHelper.instance.insertSummary(summaryModel.toMap());
+    } else {
+      print('Cannot save null to DB');
+      showInSnackBar('Cannot save to History');
+    }
   }
 }

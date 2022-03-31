@@ -72,18 +72,27 @@ class BaseClient {
       case 400:
         throw BadRequestException(convert.jsonDecode(response.body)['message'],
             response.request.url.toString());
+        break;
       case 401:
       case 404:
       case 403:
         throw UnAuthorizedException(
             convert.jsonDecode(response.body)['message'],
             response.request.url.toString());
+        break;
       case 500:
+      case 503:
+      case 501:
+        throw FetchDataException(
+            'Error occured with code: ${response.statusCode}',
+            response.request.url.toString());
+        break;
       default:
         print(response.statusCode);
         throw FetchDataException(
             'Error occured with code: ${response.statusCode}',
             response.request.url.toString());
+        break;
     }
   }
 }

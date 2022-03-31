@@ -120,17 +120,22 @@ class Pod extends StatelessWidget {
         ));
         break;
       case PodType.text:
-        return Container(child: Text(data));
+        return Container(
+            padding: EdgeInsets.only(top: 8.0),
+            child: Text(
+              data,
+              style: TextStyle(fontSize: 18),
+            ));
         break;
       case PodType.latex:
         return Padding(
-          padding: EdgeInsets.only(top: 10.0),
+          padding: EdgeInsets.only(top: 20.0),
           child: TeXView(
               child: TeXViewColumn(children: [
                 TeXViewDocument(
                   data,
                   style: TeXViewStyle(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Pallete.primary,
                   ),
                 ),
               ]),

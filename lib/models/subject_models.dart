@@ -18,7 +18,12 @@ class SubjectModel {
 }
 
 // Make Camera modes for each and every subject maths, physics, biology, chemistry
-
+List<Mode> gstModes = [
+  Mode(
+      mode: 'Objective',
+      description: 'Answers non calculative objective questions'),
+  Mode(mode: 'Theory', description: 'Answers non calculative theory questions')
+];
 // biology
 List<Mode> biologyModes = [
   Mode(
@@ -117,6 +122,16 @@ List<SubjectModel> subjectModels = [
       ),
       modes: exampleModes,
       subjectName: 'Examples'),
+  // gst
+  SubjectModel(
+      color: Colors.cyan,
+      subjectName: 'Gst',
+      icon: Icon(
+        Icons.school_outlined,
+        color: Colors.black,
+        size: 5.0.h,
+      ),
+      modes: gstModes),
   // Chemistry
   SubjectModel(
       color: Colors.deepPurple,
@@ -126,7 +141,7 @@ List<SubjectModel> subjectModels = [
         size: 5.0.h,
       ),
       modes: chemistryModes,
-      subjectName: 'Chemistry')
+      subjectName: 'Chemistry'),
 ];
 
 List<SubjectModel> FutureSubjectModels = [

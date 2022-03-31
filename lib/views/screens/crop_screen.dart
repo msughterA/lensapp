@@ -168,6 +168,17 @@ class _CropScreenState extends State<CropScreen> {
                             child: ExampleScreen(),
                           );
                         }));
+                      } else if (widget.module == mn.Module.gst) {
+                        mainBloc.add(AnswerGstEvent(
+                            img: _img,
+                            mode: widget.modes[_selectedModeIndex].mode));
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) {
+                          return BlocProvider.value(
+                            value: BlocProvider.of<MainBloc>(context),
+                            child: GstScreen(),
+                          );
+                        }));
                       }
                     },
                   )),

@@ -44,6 +44,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       case mn.Module.summarizer:
         history = await DatabaseHelper.instance.querySummary();
         break;
+      case mn.Module.gst:
+        history = await DatabaseHelper.instance.queryQA('Gst');
+        break;
       default:
     }
     setState(() {
@@ -53,7 +56,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      backgroundColor: Pallete.primary,
       body: Sizer(
         builder: (context, orientation, deviceType) {
           return SingleChildScrollView(

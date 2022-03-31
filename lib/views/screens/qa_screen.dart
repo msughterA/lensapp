@@ -28,12 +28,15 @@ class _AnswerScreenState extends State<AnswerScreen> {
   List question;
   List answer;
   bool _isSaved = false;
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     //final mainBloc = BlocProvider.of<MainBloc>(context);
     final mainBloc = BlocProvider.of<MainBloc>(context);
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Pallete.primary,
       body: Sizer(
         builder: (context, orientation, deviceType) {
           return SingleChildScrollView(
@@ -106,7 +109,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
                               height: 6.h,
                             ),
                             Text(
-                              'Quesiton',
+                              'Question',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 25),
                             ),
@@ -138,7 +141,10 @@ class _AnswerScreenState extends State<AnswerScreen> {
                         );
                       } else if (state is CalculationError) {
                         return Center(
-                          child: Text(state.message),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 90),
+                            child: Text(state.message),
+                          ),
                         );
                       }
                       return Container();
@@ -153,17 +159,29 @@ class _AnswerScreenState extends State<AnswerScreen> {
     ));
   }
 
+  void showInSnackBar(String message) {
+    // ignore: deprecated_member_use
+    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(message)));
+    //ScaffoldMessenger.showSnackBar(SnackBar(content: Text(message)));
+    //ScaffoldMessenger.of(context)
+    //   .showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future saveToDatabase() async {
-    String qjsn = json.encode(question).toString();
-    String ajsn = json.encode(answer).toString();
-    final qaModel =
-        QAModel(question: qjsn, answer: ajsn, module: 'Mathematics');
-    setState(() {
-      _isSaved = true;
-    });
-    print('THE QUESTION IS ${qaModel.question}');
-    print('THE ANSWER IS QA MODEL ${qaModel.answer}');
-    await DatabaseHelper.instance.insertQA(qaModel.toMap());
+    if (question != null && answer != null) {
+      String qjsn = json.encode(question).toString();
+      String ajsn = json.encode(answer).toString();
+      final qaModel =
+          QAModel(question: qjsn, answer: ajsn, module: 'Mathematics');
+      setState(() {
+        _isSaved = true;
+      });
+      print('THE QUESTION IS ${qaModel.question}');
+      print('THE ANSWER IS QA MODEL ${qaModel.answer}');
+      await DatabaseHelper.instance.insertQA(qaModel.toMap());
+    } else {
+      showInSnackBar('Cannot save to History');
+    }
   }
 }
 
@@ -178,10 +196,14 @@ class _ChemistryAnswerState extends State<ChemistryAnswer> {
   List question;
   List answer;
   bool _isSaved = false;
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     final mainBloc = BlocProvider.of<MainBloc>(context);
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Pallete.primary,
       body: Sizer(
         builder: (context, orientation, deviceType) {
           return SingleChildScrollView(
@@ -255,7 +277,7 @@ class _ChemistryAnswerState extends State<ChemistryAnswer> {
                               height: 6.h,
                             ),
                             Text(
-                              'Quesiton',
+                              'Question',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 25),
                             ),
@@ -287,7 +309,10 @@ class _ChemistryAnswerState extends State<ChemistryAnswer> {
                         );
                       } else if (state is AnswerChemistryError) {
                         return Center(
-                          child: Text(state.message),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 90),
+                            child: Text(state.message),
+                          ),
                         );
                       }
                       return Container();
@@ -303,14 +328,190 @@ class _ChemistryAnswerState extends State<ChemistryAnswer> {
   }
 
   Future saveToDatabase() async {
-    String qjsn = json.encode(question).toString();
-    String ajsn = json.encode(answer).toString();
-    final qaModel = QAModel(question: qjsn, answer: ajsn, module: 'Chemistry');
-    setState(() {
-      _isSaved = true;
-    });
-    print('THE QUESTION IS ${qaModel.question}');
-    print('THE ANSWER IS QA MODEL ${qaModel.answer}');
-    await DatabaseHelper.instance.insertQA(qaModel.toMap());
+    if (question != null && answer != null) {
+      String qjsn = json.encode(question).toString();
+      String ajsn = json.encode(answer).toString();
+      final qaModel =
+          QAModel(question: qjsn, answer: ajsn, module: 'Chemistry');
+      setState(() {
+        _isSaved = true;
+      });
+      print('THE QUESTION IS ${qaModel.question}');
+      print('THE ANSWER IS QA MODEL ${qaModel.answer}');
+      await DatabaseHelper.instance.insertQA(qaModel.toMap());
+    } else {
+      showInSnackBar('Cannot save to History');
+    }
+  }
+
+  void showInSnackBar(String message) {
+    // ignore: deprecated_member_use
+    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+class GstScreen extends StatefulWidget {
+  const GstScreen({Key key}) : super(key: key);
+
+  @override
+  State<GstScreen> createState() => _GstScreenState();
+}
+
+class _GstScreenState extends State<GstScreen> {
+  List question;
+  List answer;
+  bool _isSaved = false;
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  @override
+  Widget build(BuildContext context) {
+    //final mainBloc = BlocProvider.of<MainBloc>(context);
+    final mainBloc = BlocProvider.of<MainBloc>(context);
+    return SafeArea(
+        child: Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Pallete.primary,
+      body: Sizer(
+        builder: (context, orientation, deviceType) {
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(
+                left: 4.w,
+                right: 4.w,
+                top: 1.h,
+              ),
+              constraints: BoxConstraints(minHeight: 100.h, maxWidth: 100.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        child: Container(
+                          child: Icon(Icons.arrow_back_ios_outlined),
+                          height: 7.0.h,
+                          width: 15.0.w,
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                              color: Pallete.backround),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          // Save the examples to the database
+                          await saveToDatabase();
+                        },
+                        child: Container(
+                          child: Center(
+                            child: Text(
+                              _isSaved ? 'Saved' : 'Save',
+                              style: TextStyle(
+                                  color:
+                                      _isSaved ? Colors.white : Colors.black),
+                            ),
+                          ),
+                          height: 7.0.h,
+                          width: 18.0.w,
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                              color:
+                                  _isSaved ? Colors.black : Pallete.backround),
+                        ),
+                      )
+                    ],
+                  ),
+                  BlocBuilder<MainBloc, MainState>(
+                    builder: (context, state) {
+                      if (state is GstAnswer) {
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((timeStamp) {
+                          setState(() {
+                            question = state.question;
+                            answer = state.answer;
+                          });
+                        });
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 6.h,
+                            ),
+                            Text(
+                              'Question',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 25),
+                            ),
+                            RenderData(
+                              pods: state.question,
+                            ),
+                            SizedBox(
+                              height: 20.h,
+                            ),
+                            Text(
+                              'Answer',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 25),
+                            ),
+                            SizedBox(
+                              height: 2.h,
+                            ),
+                            RenderData(pods: state.answer)
+                          ],
+                        );
+                      } else if (state is AnsweringGst) {
+                        return Padding(
+                          padding: EdgeInsets.only(top: 18.h),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              backgroundColor: Colors.pink,
+                            ),
+                          ),
+                        );
+                      } else if (state is GstAnswerError) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 90),
+                            child: Text(state.message),
+                          ),
+                        );
+                      }
+                      return Container();
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    ));
+  }
+
+  void showInSnackBar(String message) {
+    // ignore: deprecated_member_use
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future saveToDatabase() async {
+    if (question != null && answer != null) {
+      String qjsn = json.encode(question).toString();
+      String ajsn = json.encode(answer).toString();
+      final qaModel = QAModel(question: qjsn, answer: ajsn, module: 'Gst');
+      setState(() {
+        _isSaved = true;
+      });
+      print('THE QUESTION IS ${qaModel.question}');
+      print('THE ANSWER IS QA MODEL ${qaModel.answer}');
+      await DatabaseHelper.instance.insertQA(qaModel.toMap());
+    } else {
+      showInSnackBar('Cannot save to history');
+    }
   }
 }
