@@ -10,6 +10,7 @@ import 'main_screen.dart';
 import 'signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:facebook_app_events/facebook_app_events.dart';
 
 class VerifyScreen extends StatelessWidget {
   final String username;
@@ -18,7 +19,10 @@ class VerifyScreen extends StatelessWidget {
   final String phoneNumber;
   final String deviceId;
   final String verificationId;
+
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  static final facebookAppEvents = FacebookAppEvents();
+
   final _formKey = GlobalKey<FormState>();
   VerifyScreen(
       {Key key,
@@ -205,6 +209,13 @@ class VerifyScreen extends StatelessWidget {
                                   phonenumber: phoneNumber, deviceId: deviceId);
                               Navigator.pushReplacement(context,
                                   MaterialPageRoute(builder: (_) {
+                                // log the signup event to facebook
+                                facebookAppEvents.logEvent(
+                                  name: 'sign_up_event',
+                                  parameters: {
+                                    'button_id': 'the_sign_up_button',
+                                  },
+                                );
                                 return BlocProvider(
                                   create: (context) => MainBloc(HomeState()),
                                   child: MainScreen(

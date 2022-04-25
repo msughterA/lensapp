@@ -1,8 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-//import 'package:flutter_svg/avd.dart';
-//import 'package:flutter_svg/';
 import '/utils/app_themes.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -15,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:lensapp/models/subject_models.dart';
 import 'edit_screen.dart';
-import 'payment_screen.dart';
+import 'plans_screen.dart';
 import 'logout_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'history_screen.dart';
@@ -42,7 +40,8 @@ class _MainScreenState extends State<MainScreen> {
   PageController pageController = PageController();
 
   int currentPageValue = 0;
-  List<String> HeaderText = ['Subject', 'History', 'Profile'];
+  List<String> HeaderText = ['Question', 'History', 'Profile'];
+  List<String> SubHeaderText = ['categories', 'menu', 'menu'];
   GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
   List<Widget> pages;
   String phoneNumber;
@@ -110,7 +109,7 @@ class _MainScreenState extends State<MainScreen> {
                                   MaterialPageRoute(builder: (_) {
                                 return BlocProvider.value(
                                     value: BlocProvider.of<MainBloc>(context),
-                                    child: PaymentScreen());
+                                    child: PlanScreen());
                               })).then((value) {
                                 // Reset the state here
                                 mainBloc
@@ -240,13 +239,8 @@ class _MainScreenState extends State<MainScreen> {
                         Padding(
                           padding: EdgeInsets.only(right: 0.w),
                           child: Container(
-                            child: Icon(Icons.search_outlined),
                             height: 7.0.h,
                             width: 15.0.w,
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(15)),
-                                color: Theme.of(context).backgroundColor),
                           ),
                         )
                       ],
@@ -266,7 +260,7 @@ class _MainScreenState extends State<MainScreen> {
                     Row(
                       children: [
                         Text(
-                          'Menu',
+                          SubHeaderText[currentPageValue],
                           style: TextStyle(fontSize: 15.sp),
                         ),
                       ],
@@ -294,7 +288,7 @@ class _MainScreenState extends State<MainScreen> {
                               size: 5.0.h,
                             ),
                             spacing: 1.0.h,
-                            title: 'Subjects',
+                            title: 'categories',
                             height: currentPageValue == 0 ? 15.0.h : 12.0.h,
                             width: 25.0.w,
                             radius: 4.0.h,
@@ -427,7 +421,8 @@ class SubjectMenu extends StatelessWidget {
       // shrinkWrap: false,
       padding: EdgeInsets.all(0),
       crossAxisCount: 2,
-      itemCount: 5,
+      // change item count to 4 to eliminate chemistry
+      itemCount: 4,
       crossAxisSpacing: 4.0.w,
       mainAxisSpacing: 2.0.h,
       staggeredTileBuilder: (index) => StaggeredTile.fit(1),

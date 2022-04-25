@@ -442,7 +442,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
     } on FirebaseAuthException catch (e) {
-      //add(GoToStateEvent(inputState: ErrorState(message: 'Invalid Details')));
+      print(e);
+      //add(GoToStateEvent(inpu')));
       emitError(ErrorType.verifyError, 'Invalid Details');
     }
   }

@@ -21,7 +21,9 @@ class _ExampleScreenState extends State<ExampleScreen> {
   @override
   Widget build(BuildContext context) {
     final mainBloc = BlocProvider.of<MainBloc>(context);
-    return SafeArea(child: Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      backgroundColor: Pallete.primary,
       body: Sizer(
         builder: (context, orientation, deviceType) {
           return SingleChildScrollView(
@@ -35,18 +37,24 @@ class _ExampleScreenState extends State<ExampleScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        child: Icon(Icons.arrow_back_ios_outlined),
-                        height: 7.0.h,
-                        width: 15.0.w,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            color: Pallete.backround),
-                      ),
-                    ],
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Icon(Icons.arrow_back_ios_outlined),
+                          height: 7.0.h,
+                          width: 15.0.w,
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                              color: Pallete.backround),
+                        ),
+                      ],
+                    ),
                   ),
                   BlocBuilder<MainBloc, MainState>(
                     builder: (context, state) {
