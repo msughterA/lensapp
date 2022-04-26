@@ -217,8 +217,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return 'Please enter Password';
                           } else if (value.length < 4) {
                             return 'Password less than 4 characters';
-                          } else if (value.length > 8) {
-                            return 'Password greater than 8 characaters';
+                          } else if (value.length > 20) {
+                            return 'Password greater than 20 characaters';
                           }
                           return null;
                         },
