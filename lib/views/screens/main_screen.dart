@@ -103,33 +103,33 @@ class _MainScreenState extends State<MainScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) {
-                                return BlocProvider.value(
-                                    value: BlocProvider.of<MainBloc>(context),
-                                    child: PlanScreen());
-                              })).then((value) {
-                                // Reset the state here
-                                mainBloc
-                                    .add(ResetEvent(inputState: HomeState()));
-                              });
-                            },
-                            child: Container(
-                              height: 3.h,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.account_balance_outlined),
-                                  SizedBox(
-                                    width: 2.w,
-                                  ),
-                                  Text('Payment')
-                                ],
-                              ),
-                            ),
-                          ),
+                          // GestureDetector(
+                          //   onTap: () {
+                          //     Navigator.push(context,
+                          //         MaterialPageRoute(builder: (_) {
+                          //       return BlocProvider.value(
+                          //           value: BlocProvider.of<MainBloc>(context),
+                          //           child: PlanScreen());
+                          //     })).then((value) {
+                          //       // Reset the state here
+                          //       mainBloc
+                          //           .add(ResetEvent(inputState: HomeState()));
+                          //     });
+                          //   },
+                          //   child: Container(
+                          //     height: 3.h,
+                          //     child: Row(
+                          //       mainAxisAlignment: MainAxisAlignment.start,
+                          //       children: [
+                          //         Icon(Icons.account_balance_outlined),
+                          //         SizedBox(
+                          //           width: 2.w,
+                          //         ),
+                          //         Text('Payment')
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ),
                           SizedBox(
                             height: 1.h,
                           ),

@@ -248,8 +248,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please Confirm Password';
-                          } else if (value.length != 8) {
-                            return 'Password must be 8 characters';
+                          } else if (value.length < 4) {
+                            return 'Password must not be less than 4 characters';
+                          } else if (value.length > 20) {
+                            return 'Password must not be greater than 20 characters';
                           } else if (_passwordController.text !=
                               _confirmPasswordController.text) {
                             return 'Password not match';
@@ -259,6 +261,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     BlocBuilder<MainBloc, MainState>(
+                      
                       builder: (context, state) {
                         if (state is SignUpState) {
                           return Column(

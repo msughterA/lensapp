@@ -19,7 +19,7 @@ class SubjectModel {
 
 // Make Camera modes for each and every subject maths, physics, biology, chemistry
 List<Mode> gstModes = [
-  Mode(mode: 'Theory', description: 'Answers non calculative theory questions'),
+  Mode(mode: 'Theory', description: 'answers non calculative theory questions'),
   Mode(
       mode: 'Objective',
       description: 'Answers non calculative objective questions')
@@ -53,9 +53,7 @@ List<Mode> chemistryModes = [
 
 // Mathematics
 List<Mode> mathematicsModes = [
-  Mode(
-      mode: 'Auto',
-      description: 'automatically figure out how to maths question'),
+  Mode(mode: 'Auto', description: 'answers calculative questions'),
   //Mode(mode: 'Solve', description: 'Solves mathematical equations'),
   //Mode(mode: 'Simplify', description: 'Simplifies mathematical equations'),
   //Mode(mode: 'Prove', description: 'Prove mathematical Theorems'),
